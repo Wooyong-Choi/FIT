@@ -5,4 +5,20 @@ package india.lg.intern.fit;
  */
 
 public class Spot {
+
+    private Position pos;
+    // 썸네일 변수
+
+    public Spot(double lg, double lt) {
+        pos = new Position(lg, lt);
+        // 썸네일 변수
+    }
+
+    public Position getPos() {
+        return pos;
+    }
+
+    public void setPos(Position pos) {
+        this.pos = pos;
+    }
 }
