@@ -6,6 +6,8 @@ package india.lg.intern.fit;
 
 public enum Country {
     SOUTH_KOREA("South Korea"),
+    FRANCE("France"),
+    UNITED_KINGDOM("United Kingdom"),
     INDIA("India");
 
     public String str;

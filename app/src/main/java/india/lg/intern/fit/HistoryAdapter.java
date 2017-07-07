@@ -68,11 +68,19 @@ public class HistoryAdapter extends ArrayAdapter<String> {
         int resID = R.drawable.ic_arrow_back_white;  // 디폴트 이미지
         switch(fp.getCountry()) {
             case SOUTH_KOREA:
-                resID = R.drawable.ic_arrow_back_white;  // 한국 이미지
+                resID = R.drawable.ko;  // 한국 이미지
+                break;
+
+            case FRANCE:
+                resID = R.drawable.fr;  // 한국 이미지
+                break;
+
+            case UNITED_KINGDOM:
+                resID = R.drawable.uk;  // 한국 이미지
                 break;
 
             case INDIA:
-                resID = R.drawable.ic_arrow_back_white;  // 인도 이미지
+                resID = R.drawable.in;  // 인도 이미지
                 break;
         }
         this.himage.add(resID);
