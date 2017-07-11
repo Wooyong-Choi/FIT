@@ -19,6 +19,7 @@ public class HistoryAdapter extends ArrayAdapter<String> {
     private ViewH viewh = null;
     private LayoutInflater inflater =null;
 
+    ArrayList<Footprint> fpList = new ArrayList<Footprint>();
     ArrayList<String> hname= new ArrayList<String>();
     ArrayList<String> hdate= new ArrayList<String>();
     ArrayList<String> hcountry= new ArrayList<String>();
@@ -28,6 +29,8 @@ public class HistoryAdapter extends ArrayAdapter<String> {
     public HistoryAdapter(Context context, int resource){
         super(context, resource);
         this.inflater = LayoutInflater.from(context);
+
+        fpList = new ArrayList<Footprint>();
     }
 
     @Override
@@ -62,6 +65,8 @@ public class HistoryAdapter extends ArrayAdapter<String> {
 
     public void add(Footprint fp)
     {
+        fpList.add(fp);
+
         this.hname.add(fp.getName());
         this.hdate.add(fp.getDate());
         this.hcountry.add(fp.getCountry().toString());
@@ -86,6 +91,13 @@ public class HistoryAdapter extends ArrayAdapter<String> {
         this.himage.add(resID);
     }
 
+    public ArrayList<Footprint> getFpList() {
+        return fpList;
+    }
+
+    public void setFpList(ArrayList<Footprint> fpList) {
+        this.fpList = fpList;
+    }
 
     class ViewH {
         public TextView hname = null;

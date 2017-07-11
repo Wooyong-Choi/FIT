@@ -1,5 +1,11 @@
 package india.lg.intern.fit;
 
+import android.location.Location;
+import android.location.LocationManager;
+
+import com.google.android.gms.maps.model.LatLng;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -8,19 +14,43 @@ import java.util.Date;
  * Created by WooYong on 2017-07-05.
  */
 
-public class Footprint {
+public class Footprint implements Serializable {
     private String name;
     private String date;
     private Country country;
     private Date start;
     private Date end;
-    private ArrayList<Position> posList;
+    private ArrayList<Location> posList;
     private ArrayList<Spot> spotList;
 
     public Footprint(String nm) {
         name = nm;
         date = getCurrentTime();
         country = Country.SOUTH_KOREA;
+        posList = new ArrayList<Location>();
+        Location l1 = new Location("");
+        l1.setLongitude(37);
+        l1.setLatitude(127);
+        Location l2 = new Location("");
+        l1.setLongitude(37.5);
+        l1.setLatitude(127.5);
+        Location l3 = new Location("");
+        l1.setLongitude(38);
+        l1.setLatitude(128);
+        posList.add(l1);
+        posList.add(l2);
+        posList.add(l3);
+        spotList = new ArrayList<Spot>();
+        spotList.add(new Spot());
+    }
+
+    public Footprint(String nm, ArrayList<Location> locList) {
+        name = nm;
+        date = getCurrentTime();
+        country = Country.SOUTH_KOREA;
+        posList = locList;
+        spotList = new ArrayList<Spot>();
+        spotList.add(new Spot());
     }
 
     public static String getCurrentTime() {
@@ -73,11 +103,11 @@ public class Footprint {
         this.end = end;
     }
 
-    public ArrayList<Position> getPosList() {
+    public ArrayList<Location> getPosList() {
         return posList;
     }
 
-    public void setPosList(ArrayList<Position> posList) {
+    public void setPosList(ArrayList<Location> posList) {
         this.posList = posList;
     }
 

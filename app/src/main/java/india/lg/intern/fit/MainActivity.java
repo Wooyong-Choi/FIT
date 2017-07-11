@@ -8,7 +8,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
+
+import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
                     //  Edit preference to make it false because we don't want this to run again
                     // e.putBoolean("firstStart", false);
-                    e.putBoolean("firstStart", true);
+                    e.putBoolean("firstStart", false);
 
                     //  Apply changes
                     e.apply();
@@ -59,29 +62,26 @@ public class MainActivity extends AppCompatActivity {
         t.start();
 
         listview = (ListView)findViewById(R.id.historyList);
-        historyAdapter=new HistoryAdapter(MainActivity.this, R.layout.history);
+        historyAdapter = new HistoryAdapter(MainActivity.this, R.layout.history);
         listview.setAdapter(historyAdapter);
         listview.deferNotifyDataSetChanged();
-        historyAdapter.add(new Footprint("TEST1"));
-        historyAdapter.add(new Footprint("TEST2"));
-        historyAdapter.add(new Footprint("TEST3"));
-        historyAdapter.add(new Footprint("TEST1"));
-        historyAdapter.add(new Footprint("TEST2"));
-        historyAdapter.add(new Footprint("TEST3"));
-        historyAdapter.add(new Footprint("TEST1"));
-        historyAdapter.add(new Footprint("TEST2"));
-        historyAdapter.add(new Footprint("TEST3"));
-        historyAdapter.add(new Footprint("TEST1"));
-        historyAdapter.add(new Footprint("TEST2"));
-        historyAdapter.add(new Footprint("TEST3"));
-        historyAdapter.notifyDataSetChanged();
+        historyAdapter.add(new Footprint("Test"));
+
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Footprint entry = ((HistoryAdapter) parent.getAdapter()).getFpList().get(position);
+                Intent intent = new Intent(MainActivity.this, FootprintActivity.class);
+                intent.putExtra("Footprint", entry);
+                startActivity(intent);
+            }
+        });
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                startActivity(new Intent(MainActivity.this, MakeActivity.class));
             }
         });
     }
