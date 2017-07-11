@@ -13,6 +13,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+
 public class FootprintActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
@@ -46,12 +48,12 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        Location testLoc = fp.getPosList().get(0);
-        LatLng testPos = new LatLng(testLoc.getLongitude(), testLoc.getLatitude());
+        ArrayList<Spot> testSpotList = fp.getSpotList();
 
         // Add a marker in Sydney and move the camera
-        mMap.addMarker(new MarkerOptions().position(testPos).title(fp.getName()));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(testPos));
+        mMap.addMarker(new MarkerOptions().position(locToLatLng(testSpotList.get(0).getPos())).title(fp.getName()));
+        mMap.addMarker(new MarkerOptions().position(locToLatLng(testSpotList.get(1).getPos())).title(fp.getName()));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(locToLatLng(testSpotList.get(0).getPos())));
         mMap.setOnMarkerClickListener(this);
     }
 
@@ -64,5 +66,9 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
         }
 
         return true;
+    }
+
+    private LatLng locToLatLng(Location loc) {
+        return new LatLng(loc.getLongitude(), loc.getLatitude());
     }
 }

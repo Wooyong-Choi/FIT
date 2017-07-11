@@ -20,4 +20,11 @@ public class Spot implements Serializable {
         pos = ps;
     }
 
+    public Location getPos() {
+        return pos;
+    }
+
+    public void setPos(Location pos) {
+        this.pos = pos;
+    }
 }

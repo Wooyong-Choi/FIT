@@ -32,16 +32,25 @@ public class Footprint implements Serializable {
         l1.setLongitude(37);
         l1.setLatitude(127);
         Location l2 = new Location("");
-        l1.setLongitude(37.5);
-        l1.setLatitude(127.5);
+        l2.setLongitude(37.01);
+        l2.setLatitude(127.01);
         Location l3 = new Location("");
-        l1.setLongitude(38);
-        l1.setLatitude(128);
+        l3.setLongitude(37.02);
+        l3.setLatitude(127.02);
+        Location l4 = new Location("");
+        l4.setLongitude(37.03);
+        l4.setLatitude(127.03);
+        Location l5 = new Location("");
+        l5.setLongitude(37.04);
+        l5.setLatitude(127.04);
         posList.add(l1);
         posList.add(l2);
         posList.add(l3);
+        posList.add(l4);
+        posList.add(l5);
         spotList = new ArrayList<Spot>();
-        spotList.add(new Spot());
+        spotList.add(new Spot(l2));
+        spotList.add(new Spot(l4));
     }
 
     public Footprint(String nm, ArrayList<Location> locList) {

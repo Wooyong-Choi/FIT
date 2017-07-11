@@ -123,6 +123,7 @@ public class PosCollector extends Service implements LocationListener {
 
     @Override
     public void onProviderDisabled(String provider) {
+        sendMessageToActivity();
     }
 
     @Override
@@ -196,8 +197,6 @@ public class PosCollector extends Service implements LocationListener {
         if(locationManager != null){
             locationManager.removeUpdates(PosCollector.this);
         }
-
-        sendMessageToActivity();
     }
 
     private void sendMessageToActivity() {

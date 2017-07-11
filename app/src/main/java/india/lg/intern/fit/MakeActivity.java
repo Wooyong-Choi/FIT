@@ -34,8 +34,8 @@ import java.util.Date;
         @Override
         public void onReceive(Context context, Intent intent) {
             // Get extra data included in the Intent
-
-            fp = new Footprint("TEST", (ArrayList<Location>) intent.getSerializableExtra("Location"));
+            ArrayList<Location> locList = (ArrayList<Location>) intent.getSerializableExtra("Location");
+            fp = new Footprint("TEST", locList);
         }
     };
 
@@ -59,8 +59,10 @@ import java.util.Date;
             Toast.makeText(getApplicationContext(), "Complete to collect Position", Toast.LENGTH_SHORT).show();
 
             intent = new Intent(this, FootprintActivity.class);
-            intent.putExtra("Location", fp);
-            startActivity(new Intent(this, FootprintActivity.class));
+            Bundle b = new Bundle();
+            b.putParcelable("Footprint", fp);
+            intent.putExtra("Bundle", b);
+            startActivity(intent);
         }
     }
 }
