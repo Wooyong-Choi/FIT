@@ -27,7 +27,7 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
         setContentView(R.layout.activity_footprint);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 
-        fp = (Footprint) getIntent().getSerializableExtra("Footprint");
+        fp = (Footprint) getIntent().getBundleExtra("Bundle").getParcelable("Footprint");
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -51,17 +51,26 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
         ArrayList<Spot> testSpotList = fp.getSpotList();
 
         // Add a marker in Sydney and move the camera
-        mMap.addMarker(new MarkerOptions().position(locToLatLng(testSpotList.get(0).getPos())).title(fp.getName()));
-        mMap.addMarker(new MarkerOptions().position(locToLatLng(testSpotList.get(1).getPos())).title(fp.getName()));
+        mMap.addMarker(new MarkerOptions().position(locToLatLng(testSpotList.get(0).getPos())).title("Spot1"));
+        mMap.addMarker(new MarkerOptions().position(locToLatLng(testSpotList.get(1).getPos())).title("Spot2"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(locToLatLng(testSpotList.get(0).getPos())));
         mMap.setOnMarkerClickListener(this);
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        if (marker.getTitle().equals(fp.getName())) {
+        if (marker.getTitle().equals("Spot1")) {
             Intent intent = new Intent(FootprintActivity.this, SpotActivity.class);
-            intent.putExtra("Spot", new Spot());
+            Bundle b = new Bundle();
+            b.putParcelable("Spot", fp.getSpotList().get(0));
+            intent.putExtra("Bundle", b);
+            startActivity(intent);
+        }
+        else if (marker.getTitle().equals("Spot2")) {
+            Intent intent = new Intent(FootprintActivity.this, SpotActivity.class);
+            Bundle b = new Bundle();
+            b.putParcelable("Spot", fp.getSpotList().get(1));
+            intent.putExtra("Bundle", b);
             startActivity(intent);
         }
 

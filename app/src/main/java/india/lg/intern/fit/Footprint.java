@@ -2,6 +2,9 @@ package india.lg.intern.fit;
 
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -14,7 +17,7 @@ import java.util.Date;
  * Created by WooYong on 2017-07-05.
  */
 
-public class Footprint implements Serializable {
+public class Footprint implements Parcelable {
     private String name;
     private String date;
     private Country country;
@@ -23,6 +26,8 @@ public class Footprint implements Serializable {
     private ArrayList<Location> posList;
     private ArrayList<Spot> spotList;
 
+
+    public Footprint() { }
     public Footprint(String nm) {
         name = nm;
         date = getCurrentTime();
@@ -126,5 +131,42 @@ public class Footprint implements Serializable {
 
     public void setSpotList(ArrayList<Spot> spotList) {
         this.spotList = spotList;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Parcelable.Creator<Footprint> CREATOR =
+            new Parcelable.Creator<Footprint>() {
+                @Override
+                public Footprint createFromParcel(Parcel in) {
+                    Footprint fp = new Footprint();
+                    fp.name = in.readString();
+                    fp.date = in.readString();
+                    fp.country = (Country) in.readSerializable();
+                    fp.start = (Date) in.readSerializable();
+                    fp.end = (Date) in.readSerializable();
+                    fp.posList = in.readArrayList(Location.class.getClassLoader());
+                    fp.spotList = in.readArrayList(Spot.class.getClassLoader());
+                    return fp;
+                }
+
+                @Override
+                public Footprint[] newArray(int size) {
+                    return new Footprint[size];
+                }
+            };
+
+    @Override
+    public void writeToParcel(Parcel parcel, int flags) {
+        parcel.writeString(name);
+        parcel.writeString(date);
+        parcel.writeSerializable(country);
+        parcel.writeSerializable(start);
+        parcel.writeSerializable(end);
+        parcel.writeList(posList);
+        parcel.writeList(spotList);
     }
 }

@@ -14,6 +14,6 @@ public class SpotActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_spot);
 
-        spot = (Spot) getIntent().getSerializableExtra("Spot");
+        spot = (Spot) getIntent().getBundleExtra("Bundle").getParcelable("Spot");
     }
 }
