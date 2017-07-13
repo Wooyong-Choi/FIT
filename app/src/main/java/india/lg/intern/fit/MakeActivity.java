@@ -1,10 +1,13 @@
 package india.lg.intern.fit;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.location.Location;
+import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,9 +18,9 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Date;
 
-    public class MakeActivity extends AppCompatActivity implements View.OnClickListener {
+public class MakeActivity extends AppCompatActivity implements View.OnClickListener {
 
-    Footprint fp;
+    private Footprint fp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +30,7 @@ import java.util.Date;
         ((Button) findViewById(R.id.collect)).setOnClickListener(this);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
-                mMessageReceiver, new IntentFilter("GPSLocationUpdates"));
+                mMessageReceiver, new IntentFilter("PosCollector"));
     }
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -44,6 +47,7 @@ import java.util.Date;
         Button btn = ((Button) v);
 
         if (btn.getText().equals("Collect")) {
+            // For test
             fp = new Footprint("TEST");
 
             btn.setText("Stop");
@@ -52,17 +56,18 @@ import java.util.Date;
             Intent intent = new Intent(this, PosCollector.class);
             startService(intent);
 
-        } else {
+        } else if (btn.getText().equals("Stop")){
+            Toast.makeText(getApplicationContext(), "Complete to collect Position", Toast.LENGTH_SHORT).show();
+
             Intent intent = new Intent(this, PosCollector.class);
             stopService(intent);
-
-            Toast.makeText(getApplicationContext(), "Complete to collect Position", Toast.LENGTH_SHORT).show();
 
             intent = new Intent(this, FootprintActivity.class);
             Bundle b = new Bundle();
             b.putParcelable("Footprint", fp);
             intent.putExtra("Bundle", b);
             startActivity(intent);
+            finish();
         }
     }
 }

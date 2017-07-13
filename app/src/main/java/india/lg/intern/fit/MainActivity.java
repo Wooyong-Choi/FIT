@@ -72,7 +72,9 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Footprint entry = ((HistoryAdapter) parent.getAdapter()).getFpList().get(position);
                 Intent intent = new Intent(MainActivity.this, FootprintActivity.class);
-                intent.putExtra("Footprint", entry);
+                Bundle b = new Bundle();
+                b.putParcelable("Footprint", entry);
+                intent.putExtra("Bundle", b);
                 startActivity(intent);
             }
         });

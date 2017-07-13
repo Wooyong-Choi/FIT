@@ -1,208 +1,192 @@
 package india.lg.intern.fit;
 
-import android.Manifest;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationAvailability;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.GoogleMap;
 
 import java.util.ArrayList;
 
+
 /**
- * Created by WooYong on 2017-07-07.
+ * Created by LeeJaeYoung on 2016-12-09.
  */
 
-public class PosCollector extends Service implements LocationListener {
+public class PosCollector extends Service implements
 
-    private final Context mContext;
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
-    // flag for GPS status
-    boolean isGPSEnabled = false;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    private static final String TAG = "GoogleMapAPIClient";
+    private final IBinder mBinder = new MyBinder();
 
-    // flag for network status
-    boolean isNetworkEnabled = false;
+    private ArrayList<Location> locList;
 
-    boolean canGetLocation = false;
 
-    ArrayList<Location> locList;
-
-    Location location; // location
-    double latitude; // latitude
-    double longitude; // longitude
-
-    // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
-
-    // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute
-
-    // Declaring a Location Manager
-    protected LocationManager locationManager;
-
-    public PosCollector(Context context) {
-        this.mContext = context;
-        locList = new ArrayList<Location>();
-        getLocation();
+    public class MyBinder extends Binder {
+        public PosCollector GetService() {
+            return PosCollector.this;
+        }
     }
 
-    public Location getLocation() {
-        try {
-            locationManager = (LocationManager) mContext
-                    .getSystemService(LOCATION_SERVICE);
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
 
-            // getting GPS status
-            isGPSEnabled = locationManager
-                    .isProviderEnabled(LocationManager.GPS_PROVIDER);
+    /**
+     * GoogleApiClient.Builder : Google Play 서비스 접근승인 요청
+     * addConnectionCallbacks(this) //Google Client Connection Callback 클래스
+     * addApi(LocationServices.API); //Fused Location Provider API 사용 요청
+     */
+    @Override
+    public void onCreate() {
 
-            // getting network status
-            isNetworkEnabled = locationManager
-                    .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        locList = new ArrayList<Location>();
 
-            if (!isGPSEnabled && !isNetworkEnabled) {
-                // no network provider is enabled
-                showSettingsAlert();
-            } else {
-                this.canGetLocation = true;
-                // First get location from Network Provider
-                if (isNetworkEnabled) {
-                    locationManager.requestLocationUpdates(
-                            LocationManager.NETWORK_PROVIDER,
-                            MIN_TIME_BW_UPDATES,
-                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                    Log.d("Network", "Network");
-                    if (locationManager != null) {
-                        location = locationManager
-                                .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                        locList.add(location);
-                        if (location != null) {
-                            latitude = location.getLatitude();
-                            longitude = location.getLongitude();
-                        }
-                    }
-                }
-                // if GPS Enabled get lat/long using GPS Services
-                if (isGPSEnabled) {
-                    if (location == null) {
-                        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) { }
-                        locationManager.requestLocationUpdates(
-                                LocationManager.GPS_PROVIDER,
-                                MIN_TIME_BW_UPDATES,
-                                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                        Log.d("GPS Enabled", "GPS Enabled");
-                        if (locationManager != null) {
-                            location = locationManager
-                                    .getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                            if (location != null) {
-                                latitude = location.getLatitude();
-                                longitude = location.getLongitude();
-                            }
-                        }
-                    }
-                }
-            }
+        super.onCreate();
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        //Google Api를 사용할 수 있는지 체크
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+
+    /**
+     * GoogleApiClient와 connect() 연결이 완료된 후 실행됨 (이 부분에서 다양한 서비스 활용)
+     * setFastestInterval : 지도 갱신시간
+     * @param bundle
+     */
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+        Log.d(TAG, "GoogleService onConnected");
+
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(300);
+        mLocationRequest.setFastestInterval(150);
+
+        int nper1 = ContextCompat.checkSelfPermission
+                (this, android.Manifest.permission.ACCESS_FINE_LOCATION);
+        int nper2 = ContextCompat.checkSelfPermission
+                (this, android.Manifest.permission.ACCESS_COARSE_LOCATION);
+        String s = String.format("%d %d", nper1, nper2);
+        if (Build.VERSION.SDK_INT >= 23 &&
+                ContextCompat.checkSelfPermission
+                        (this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED
+                &&
+                ContextCompat.checkSelfPermission
+                        (this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED)
+        {
+            Toast.makeText(PosCollector.this, s, Toast.LENGTH_LONG).show();
+            return;
+        }
+        startLocationUpdates();
+        Log.d(TAG, "Connected Success");
+    }
+
+
+    /**
+     * Requests location updates from the FusedLocationApi. , myService
+     * Fused Location Provider의 특징은 저전력으로 위치측위의 정확도를 향상시켰고,
+     *  기존보다 간편하게 API 호출하여 위치를 측위할 수 있도록 개선되었습니다.
+     * Fused Location Provider는 Google Play 서비스를 통해 API형태로 사용할 수 있습니다.
+     * Google Play 서비스는 구글에서 제공하는 다양한 서비스들을 손쉽게 사용할 수 있도록
+     *  제공하는 클라이언트 라이브러리입니다.
+     * 구글 플레이 스토어를 통한 자동 플랫폼 업데이트를 지원하기 때문에 OS버전이나, 통신사 버전에 따른
+     * 디바이스 지원에 대한 걱정없이 구글이 제공하는 최신의 기능을 쉽게 빠르게 사용할 수 있습니다.
+     */
+
+    //4-2번
+    protected void startLocationUpdates() {
+
+        int nper1 = ContextCompat.checkSelfPermission
+                (this, android.Manifest.permission.ACCESS_FINE_LOCATION);
+        int nper2 = ContextCompat.checkSelfPermission
+                (this, android.Manifest.permission.ACCESS_COARSE_LOCATION);
+        String s = String.format("%d %d", nper1, nper2);
+        if (Build.VERSION.SDK_INT >= 23 &&
+                ContextCompat.checkSelfPermission
+                        (this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED
+                &&
+                ContextCompat.checkSelfPermission
+                        (this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(PosCollector.this, s, Toast.LENGTH_LONG).show();
+            return;
         }
 
-        return location;
+        //Fused Location Provider를 통한 위치정보
+        LocationAvailability locationAvailability =
+                LocationServices.FusedLocationApi.getLocationAvailability(mGoogleApiClient);
+        if (locationAvailability.isLocationAvailable()) {
+            LocationServices.FusedLocationApi.requestLocationUpdates
+                    (mGoogleApiClient, mLocationRequest, this);
+        } else {
+            Toast.makeText(this, "Location Unavialable", Toast.LENGTH_LONG).show();
+        }
     }
+
 
     @Override
     public void onLocationChanged(Location location) {
+        locList.add(location);
     }
 
     @Override
-    public void onProviderDisabled(String provider) {
-        sendMessageToActivity();
-    }
+    public void onDestroy() {
+        Intent intent = new Intent("PosCollector");
+        intent.putExtra("Location", locList);
+        sendBroadcast(intent);
 
-    @Override
-    public void onProviderEnabled(String provider) {
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-    }
-
-    @Override
-    public IBinder onBind(Intent arg0) {
-        return null;
-    }
-
-    /**
-     * Function to get latitude
-     */
-    public double getLatitude() {
-        if (location != null) {
-            latitude = location.getLatitude();
-        }
-
-        // return latitude
-        return latitude;
-    }
-
-    /**
-     * Function to get longitude
-     */
-    public double getLongitude() {
-        if (location != null) {
-            longitude = location.getLongitude();
-        }
-
-        // return longitude
-        return longitude;
-    }
-
-    /**
-     * Function to check if best network provider
-     *
-     * @return boolean
-     */
-    public boolean canGetLocation() {
-        return this.canGetLocation;
-    }
-
-    /**
-     * Function to show settings alert dialog
-     */
-    public void showSettingsAlert() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
-
-        // Setting Dialog Title
-        alertDialog.setTitle("GPS is settings");
-
-        // Setting Dialog Message
-        alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
-
-        // Setting Icon to Dialog
-        //alertDialog.setIcon(R.drawable.delete);
-
-    }
-
-    /**
-     * Stop using GPS listener
-     * Calling this function will stop using GPS in your app
-     * */
-    public void stopUsingGPS(){
-        if(locationManager != null){
-            locationManager.removeUpdates(PosCollector.this);
+        super.onDestroy();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
         }
     }
 
-    private void sendMessageToActivity() {
-        Intent intent = new Intent("GPSLocationUpdates");
-        // You can also include some extra data.
-        intent.putExtra("Position", locList);
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+    /**
+     * 연결이 갑자기 일시적으로 끊어지면 자동으로 연결복구를 시도함.
+     * @param i
+     */
+    @Override
+    public void onConnectionSuspended(int i) {
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.i(TAG, "Connection failed. Error: " + connectionResult.getErrorCode());
+    }
+
+    public void connect() {
+        mGoogleApiClient.connect();
     }
 }
