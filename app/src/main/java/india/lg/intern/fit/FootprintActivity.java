@@ -50,10 +50,10 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
 
         // Add a marker in Sydney and move the camera
         int i = 0;
-        for (Location loc: fp.getPosList()) {
+        for (Location loc : fp.getPosList()) {
             mMap.addMarker(new MarkerOptions().position(locToLatLng(loc)).title("Spot" + i));
         }
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(locToLatLng(fp.getPosList().get(0))));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locToLatLng(fp.getPosList().get(0)), 11));
         mMap.setOnMarkerClickListener(this);
     }
 

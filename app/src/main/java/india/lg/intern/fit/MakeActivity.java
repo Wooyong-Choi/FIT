@@ -2,12 +2,14 @@ package india.lg.intern.fit;
 
 import android.*;
 import android.Manifest;
+import android.app.backup.SharedPreferencesBackupHelper;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.IBinder;
@@ -103,6 +105,7 @@ public class MakeActivity extends AppCompatActivity implements View.OnClickListe
             }
             Toast.makeText(getApplicationContext(), "Complete to collect Position", Toast.LENGTH_SHORT).show();
             fp = new Footprint("TEST", locList);
+
 
             intent = new Intent(context, FootprintActivity.class);
             Bundle b = new Bundle();

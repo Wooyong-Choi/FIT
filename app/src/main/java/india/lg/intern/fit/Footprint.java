@@ -17,7 +17,7 @@ import java.util.Date;
  * Created by WooYong on 2017-07-05.
  */
 
-public class Footprint implements Parcelable {
+public class Footprint implements Parcelable, Serializable {
     private String name;
     private String date;
     private Country country;
@@ -33,20 +33,20 @@ public class Footprint implements Parcelable {
         country = Country.SOUTH_KOREA;
         posList = new ArrayList<Location>();
         Location l1 = new Location("");
-        l1.setLongitude(37);
-        l1.setLatitude(127);
+        l1.setLatitude(37);
+        l1.setLongitude(127);
         Location l2 = new Location("");
-        l2.setLongitude(37.01);
-        l2.setLatitude(127.01);
+        l2.setLatitude(37.01);
+        l2.setLongitude(127.01);
         Location l3 = new Location("");
-        l3.setLongitude(37.02);
-        l3.setLatitude(127.02);
+        l3.setLatitude(37.02);
+        l3.setLongitude(127.02);
         Location l4 = new Location("");
-        l4.setLongitude(37.03);
-        l4.setLatitude(127.03);
+        l4.setLatitude(37.03);
+        l4.setLongitude(127.03);
         Location l5 = new Location("");
-        l5.setLongitude(37.04);
-        l5.setLatitude(127.04);
+        l5.setLatitude(37.04);
+        l5.setLongitude(127.04);
         posList.add(l1);
         posList.add(l2);
         posList.add(l3);
