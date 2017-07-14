@@ -9,16 +9,16 @@ import android.support.v4.app.Fragment;
 import com.github.paolorotolo.appintro.AppIntro;
 import com.github.paolorotolo.appintro.AppIntroFragment;
 
+/**
+ * Created by Wooyong on 2017-07-06.
+ */
 public class InitActivity extends AppIntro {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Note here that we DO NOT use setContentView();
-
-        // Instead of fragments, you can also use our default slide
-        // Just set a title, description, background and image. AppIntro will do the rest.
+        // Add test slide
         addSlide(AppIntroFragment.newInstance("Test1", "for test", R.drawable.ic_navigate_next_white, Color.parseColor("#FFB2F5")));
         addSlide(AppIntroFragment.newInstance("Test2", "for test", R.drawable.ic_navigate_next_white, Color.parseColor("#1DDB16")));
         addSlide(AppIntroFragment.newInstance("Test3", "for test", R.drawable.ic_navigate_next_white, Color.parseColor("#CC3D3D")));
@@ -36,14 +36,12 @@ public class InitActivity extends AppIntro {
     @Override
     public void onSkipPressed(Fragment currentFragment) {
         super.onSkipPressed(currentFragment);
-
         finish();
     }
 
     @Override
     public void onDonePressed(Fragment currentFragment) {
         super.onDonePressed(currentFragment);
-
         finish();
     }
 

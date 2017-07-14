@@ -48,36 +48,27 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        ArrayList<Spot> testSpotList = fp.getSpotList();
-
         // Add a marker in Sydney and move the camera
-        mMap.addMarker(new MarkerOptions().position(locToLatLng(testSpotList.get(0).getPos())).title("Spot1"));
-        mMap.addMarker(new MarkerOptions().position(locToLatLng(testSpotList.get(1).getPos())).title("Spot2"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(locToLatLng(testSpotList.get(0).getPos())));
+        int i = 0;
+        for (Location loc: fp.getPosList()) {
+            mMap.addMarker(new MarkerOptions().position(locToLatLng(loc)).title("Spot" + i));
+        }
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(locToLatLng(fp.getPosList().get(0))));
         mMap.setOnMarkerClickListener(this);
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        if (marker.getTitle().equals("Spot1")) {
-            Intent intent = new Intent(FootprintActivity.this, SpotActivity.class);
-            Bundle b = new Bundle();
-            b.putParcelable("Spot", fp.getSpotList().get(0));
-            intent.putExtra("Bundle", b);
-            startActivity(intent);
-        }
-        else if (marker.getTitle().equals("Spot2")) {
-            Intent intent = new Intent(FootprintActivity.this, SpotActivity.class);
-            Bundle b = new Bundle();
-            b.putParcelable("Spot", fp.getSpotList().get(1));
-            intent.putExtra("Bundle", b);
-            startActivity(intent);
-        }
+        Intent intent = new Intent(FootprintActivity.this, SpotActivity.class);
+        Bundle b = new Bundle();
+        b.putParcelable("Spot", fp.getSpotList().get(Integer.parseInt(marker.getTitle().substring(4))));
+        intent.putExtra("Bundle", b);
+        startActivity(intent);
 
         return true;
     }
 
     private LatLng locToLatLng(Location loc) {
-        return new LatLng(loc.getLongitude(), loc.getLatitude());
+        return new LatLng(loc.getLatitude(), loc.getLongitude());
     }
 }

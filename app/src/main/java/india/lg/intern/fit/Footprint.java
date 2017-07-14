@@ -26,7 +26,6 @@ public class Footprint implements Parcelable {
     private ArrayList<Location> posList;
     private ArrayList<Spot> spotList;
 
-
     public Footprint() { }
     public Footprint(String nm) {
         name = nm;

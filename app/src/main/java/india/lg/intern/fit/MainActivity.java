@@ -23,43 +23,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //  Initialize SharedPreferences
-                SharedPreferences getPrefs = PreferenceManager
-                        .getDefaultSharedPreferences(getBaseContext());
-
-                //  Create a new boolean and preference and set it to true
-                boolean isFirstStart = getPrefs.getBoolean("firstStart", true);
-
-                //  If the activity has never started before...
-                if (isFirstStart) {
-
-                    //  Launch app intro
-                    final Intent i = new Intent(MainActivity.this, InitActivity.class);
-
-                    runOnUiThread(new Runnable() {
-                        @Override public void run() {
-                            startActivity(i);
-                        }
-                    });
-
-                    //  Make a new preferences editor
-                    SharedPreferences.Editor e = getPrefs.edit();
-
-                    //  Edit preference to make it false because we don't want this to run again
-                    // e.putBoolean("firstStart", false);
-                    e.putBoolean("firstStart", false);
-
-                    //  Apply changes
-                    e.apply();
-                }
-            }
-        });
-
         // Start the thread
-        t.start();
+        tutThread.start();
 
         listview = (ListView)findViewById(R.id.historyList);
         historyAdapter = new HistoryAdapter(MainActivity.this, R.layout.history);
@@ -87,4 +52,42 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    /**
+     * Thread for Tutorial
+     */
+    private Thread tutThread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            //  Initialize SharedPreferences
+            SharedPreferences getPrefs = PreferenceManager
+                    .getDefaultSharedPreferences(getBaseContext());
+
+            //  Create a new boolean and preference and set it to true
+            boolean isFirstStart = getPrefs.getBoolean("firstStart", true);
+
+            //  If the activity has never started before...
+            if (isFirstStart) {
+
+                //  Launch app intro
+                final Intent i = new Intent(MainActivity.this, InitActivity.class);
+
+                runOnUiThread(new Runnable() {
+                    @Override public void run() {
+                        startActivity(i);
+                    }
+                });
+
+                //  Make a new preferences editor
+                SharedPreferences.Editor e = getPrefs.edit();
+
+                //  Edit preference to make it false because we don't want this to run again
+                // e.putBoolean("firstStart", false);
+                e.putBoolean("firstStart", false);
+
+                //  Apply changes
+                e.apply();
+            }
+        }
+    });
 }

@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -67,13 +68,18 @@ public class PosCollector extends Service implements
         super.onCreate();
 
         //Google Api를 사용할 수 있는지 체크
+        buildGoogleAPIClient();
+    }
+
+    private synchronized void buildGoogleAPIClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+        mGoogleApiClient.connect();
+        Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
     }
-
 
     /**
      * GoogleApiClient와 connect() 연결이 완료된 후 실행됨 (이 부분에서 다양한 서비스 활용)
@@ -104,7 +110,7 @@ public class PosCollector extends Service implements
                         (this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
                         != PackageManager.PERMISSION_GRANTED)
         {
-            Toast.makeText(PosCollector.this, s, Toast.LENGTH_LONG).show();
+            Toast.makeText(PosCollector.this, "Permission Error", Toast.LENGTH_LONG).show();
             return;
         }
         startLocationUpdates();
@@ -150,7 +156,7 @@ public class PosCollector extends Service implements
             LocationServices.FusedLocationApi.requestLocationUpdates
                     (mGoogleApiClient, mLocationRequest, this);
         } else {
-            Toast.makeText(this, "Location Unavialable", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Location Unavailable", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -164,7 +170,7 @@ public class PosCollector extends Service implements
     public void onDestroy() {
         Intent intent = new Intent("PosCollector");
         intent.putExtra("Location", locList);
-        sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
         super.onDestroy();
         if (mGoogleApiClient.isConnected()) {

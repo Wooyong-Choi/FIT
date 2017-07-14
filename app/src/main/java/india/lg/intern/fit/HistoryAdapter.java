@@ -17,13 +17,13 @@ import java.util.ArrayList;
 public class HistoryAdapter extends ArrayAdapter<String> {
 
     private ViewH viewh = null;
-    private LayoutInflater inflater =null;
+    private LayoutInflater inflater = null;
 
-    ArrayList<Footprint> fpList = new ArrayList<Footprint>();
-    ArrayList<String> hname= new ArrayList<String>();
-    ArrayList<String> hdate= new ArrayList<String>();
-    ArrayList<String> hcountry= new ArrayList<String>();
-    ArrayList<Integer> himage=new ArrayList<Integer>();
+    private ArrayList<Footprint> fpList = new ArrayList<Footprint>();
+    private ArrayList<String> nameList = new ArrayList<String>();
+    private ArrayList<String> dateList = new ArrayList<String>();
+    private ArrayList<String> countryList = new ArrayList<String>();
+    private ArrayList<Integer> imageList = new ArrayList<Integer>();
 
     //생성자
     public HistoryAdapter(Context context, int resource){
@@ -51,25 +51,25 @@ public class HistoryAdapter extends ArrayAdapter<String> {
             viewh = (ViewH) view.getTag();
         }
 
-        viewh.hname.setText(hname.get(position));
-        viewh.hdate.setText(hdate.get(position));
-        viewh.hcountry.setText(hcountry.get(position));
-        viewh.himage.setImageResource(himage.get(position));
+        viewh.hname.setText(nameList.get(position));
+        viewh.hdate.setText(dateList.get(position));
+        viewh.hcountry.setText(countryList.get(position));
+        viewh.himage.setImageResource(imageList.get(position));
 
         return view;
     }
     @Override
     public int getCount(){
-        return hname.size();
+        return nameList.size();
     }
 
     public void add(Footprint fp)
     {
         fpList.add(fp);
 
-        this.hname.add(fp.getName());
-        this.hdate.add(fp.getDate());
-        this.hcountry.add(fp.getCountry().toString());
+        this.nameList.add(fp.getName());
+        this.dateList.add(fp.getDate());
+        this.countryList.add(fp.getCountry().toString());
         int resID = R.drawable.ic_arrow_back_white;  // 디폴트 이미지
         switch(fp.getCountry()) {
             case SOUTH_KOREA:
@@ -88,7 +88,7 @@ public class HistoryAdapter extends ArrayAdapter<String> {
                 resID = R.drawable.in;  // 인도 이미지
                 break;
         }
-        this.himage.add(resID);
+        this.imageList.add(resID);
     }
 
     public ArrayList<Footprint> getFpList() {
