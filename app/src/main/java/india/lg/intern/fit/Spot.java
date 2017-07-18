@@ -12,22 +12,22 @@ import java.io.Serializable;
  * Created by WooYong on 2017-07-05.
  */
 
-public class Spot implements Parcelable {
+public class Spot implements Parcelable, Serializable {
 
-    private Location pos;
+    private int posIdx;
 
     public Spot() { }
 
-    public Spot(Location ps) {
-        pos = ps;
+    public Spot(int idx) {
+        posIdx = idx;
     }
 
-    public Location getPos() {
-        return pos;
+    public int getPosIdx() {
+        return posIdx;
     }
 
-    public void setPos(Location pos) {
-        this.pos = pos;
+    public void setPosIdx(int posIdx) {
+        this.posIdx = posIdx;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class Spot implements Parcelable {
                 @Override
                 public Spot createFromParcel(Parcel in) {
                     Spot sp = new Spot();
-                    sp.pos = in.readParcelable(Location.class.getClassLoader());
+                    sp.posIdx = in.readInt();
                     return sp;
                 }
 
@@ -52,6 +52,6 @@ public class Spot implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int flags) {
-        parcel.writeParcelable(pos, 0);
+        parcel.writeInt(posIdx);
     }
 }

@@ -1,13 +1,28 @@
 package india.lg.intern.fit;
 
 import android.Manifest;
+import android.content.ContentResolver;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.app.Activity;
@@ -25,6 +40,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TextView;
@@ -34,7 +50,9 @@ import android.widget.FrameLayout;
 
 import com.squareup.picasso.Picasso;
 
-public class SpotActivity extends AppCompatActivity {
+import static android.media.CamcorderProfile.get;
+
+public class SpotActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Context mContext;
     private int count;
@@ -45,9 +63,11 @@ public class SpotActivity extends AppCompatActivity {
     Cursor imagecursor;
     GridView gv;
 
+    private ArrayList<Integer> selImgPosList;
+
     private Spot spot;
 
-
+    private ImageButton imageButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,36 +93,87 @@ public class SpotActivity extends AppCompatActivity {
             }
         }
 
-        // Image 땡겨오고
-        String[] columns = { MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID };
-        String orderBy = MediaStore.Images.Media._ID;
-        imagecursor = mContext.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null, orderBy);
-        int image_column_index = imagecursor.getColumnIndex(MediaStore.Images.Media._ID);
-
-
-        this.count = imagecursor.getCount();
-        this.thumbnails = new Bitmap[this.count];
-        this.arrPath = new String[this.count];
-        this.thumbnailsselection = new boolean[this.count];
-
-        for (int i = 0; i < this.count; i++) {
-            imagecursor.moveToPosition(i);
-            int id = imagecursor.getInt(image_column_index);
-            int dataColumnIndex = imagecursor.getColumnIndex(MediaStore.Images.Media.DATA);
-
-            thumbnails[i] = MediaStore.Images.Thumbnails.getThumbnail(
-                    getApplicationContext().getContentResolver(), id,
-                    MediaStore.Images.Thumbnails.MICRO_KIND, null);
-
-            arrPath[i]= imagecursor.getString(dataColumnIndex);
-        }
-
-        gv = (GridView)findViewById(R.id.gridview);
+        gv = (GridView) findViewById(R.id.gridview);
         final ImageAdapter ia = new ImageAdapter(this);
         gv.setAdapter(ia);
         gv.setChoiceMode(GridView.CHOICE_MODE_MULTIPLE_MODAL);
         gv.setMultiChoiceModeListener(new MultiChoiceModeListener());
         ((TextView) findViewById(R.id.testTextview)).setText("Image : " + gv.getAdapter().getCount());
+
+        selImgPosList = new ArrayList<>();
+
+        imageButton = (ImageButton)findViewById(R.id.imageButton);
+        imageButton.setOnClickListener(this);
+    }
+
+    private Uri getLocalBitmapUri(ImageView imageView) {
+        // Extract Bitmap from ImageView drawable
+        Drawable drawable = imageView.getDrawable();
+        Bitmap bmp = null;
+        if (drawable instanceof BitmapDrawable){
+            bmp = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+        } else {
+            return null;
+        }
+        // Store image to default external storage directory
+        Uri bmpUri = null;
+        try {
+            File file =  new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS), "share_image_" + System.currentTimeMillis() + ".png");
+            file.getParentFile().mkdirs();
+            FileOutputStream out = new FileOutputStream(file);
+            bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
+            out.close();
+            bmpUri = Uri.fromFile(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bmpUri;
+    }
+
+    private boolean isPackageExisted(String targetPackage){
+        List<ApplicationInfo> packages;
+        PackageManager pm;
+        pm = getPackageManager();
+        packages = pm.getInstalledApplications(0);
+        for (ApplicationInfo packageInfo : packages) {
+            if(packageInfo.packageName.equals(targetPackage)) return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onClick(View v) {
+        String type = "image/*";
+
+        switch (v.getId()) {
+            case R.id.imageButton:
+                try {
+                    Intent share = new Intent(Intent.ACTION_SEND);
+
+                    if (isPackageExisted("com.instagram.android")) {
+                        share.setPackage("com.instagram.android");
+
+                    } else {
+                        Toast.makeText(this, "No instagram", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    for (int idx : selImgPosList) {
+                        ImageView temp = (ImageView) ((CheckableLayout) gv.getChildAt(idx)).getChildAt(0);
+                        Uri bmpUri = getLocalBitmapUri(temp);
+                        share.putExtra(Intent.EXTRA_STREAM, bmpUri);
+                    }
+
+                    share.setType(type);
+                    startActivity(Intent.createChooser(share, "Share to"));
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                }
+                break;
+        }
     }
 
     /**==========================================
@@ -120,7 +191,7 @@ public class SpotActivity extends AppCompatActivity {
             thumbsIDList = new ArrayList<String>();
             getThumbInfo(thumbsIDList, thumbsDataList);
         }
-    //new field to store th checked objects
+        //new field to store th checked objects
         class Image {
             Bitmap bm;
             boolean isChecked=false;
@@ -153,9 +224,10 @@ public class SpotActivity extends AppCompatActivity {
             return position;
         }
 
+
         public View getView(int position, View convertView, ViewGroup parent) {
             CheckableLayout l;
-            ImageView imageView;
+            final ImageView imageView;
 
             if (convertView == null) {
                 imageView = new ImageView(mContext);
@@ -172,48 +244,37 @@ public class SpotActivity extends AppCompatActivity {
             } else {
                 l = (CheckableLayout) convertView;
                 imageView = (ImageView) l.getChildAt(0);
+                return l;
             }
 
 
             BitmapFactory.Options bo = new BitmapFactory.Options();
             bo.inSampleSize = 8;
             Bitmap bmp = BitmapFactory.decodeFile(thumbsDataList.get(position), bo);
-            Bitmap resized = Bitmap.createScaledBitmap(bmp, 345, 345, true);
+            Bitmap resized = Bitmap.createScaledBitmap(bmp, 300, 300, true);
             imageView.setImageBitmap(resized);
-
 
             return l;
         }
 
         private void getThumbInfo(ArrayList<String> thumbsIDs, ArrayList<String> thumbsDatas) {
             String[] proj = {MediaStore.Images.Media._ID,
-                    MediaStore.Images.Media.DATA,
-                    MediaStore.Images.Media.DISPLAY_NAME,
-                    MediaStore.Images.Media.SIZE};
+                    MediaStore.Images.Media.DATA};
 
-            Cursor imageCursor = managedQuery(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    proj, null, null, null);
+            Cursor imageCursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
 
             if (imageCursor != null && imageCursor.moveToFirst()) {
-                String title;
                 String thumbsID;
-                String thumbsImageID;
                 String thumbsData;
-                String data;
-                String imgSize;
 
                 int thumbsIDCol = imageCursor.getColumnIndex(MediaStore.Images.Media._ID);
                 int thumbsDataCol = imageCursor.getColumnIndex(MediaStore.Images.Media.DATA);
-                int thumbsImageIDCol = imageCursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME);
-                int thumbsSizeCol = imageCursor.getColumnIndex(MediaStore.Images.Media.SIZE);
                 int num = 0;
                 do {
                     thumbsID = imageCursor.getString(thumbsIDCol);
                     thumbsData = imageCursor.getString(thumbsDataCol);
-                    thumbsImageID = imageCursor.getString(thumbsImageIDCol);
-                    imgSize = imageCursor.getString(thumbsSizeCol);
                     num++;
-                    if (thumbsImageID != null) {
+                    if (thumbsID != null) {
                         thumbsIDs.add(thumbsID);
                         thumbsDatas.add(thumbsData);
                     }
@@ -222,25 +283,25 @@ public class SpotActivity extends AppCompatActivity {
             imageCursor.close();
             return;
         }
+    }
 
-        private String getImageInfo(String ImageData, String Location, String thumbID) {
-            String imageDataPath = null;
-            String[] proj = {MediaStore.Images.Media._ID,
-                    MediaStore.Images.Media.DATA,
-                    MediaStore.Images.Media.DISPLAY_NAME,
-                    MediaStore.Images.Media.SIZE};
-            Cursor imageCursor = managedQuery(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    proj, "_ID='" + thumbID + "'", null, null);
+    private String getImageInfo(String thumbID) {
+        String imageDataPath = null;
+        String[] proj = {MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.DATA,
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.SIZE};
+        Cursor imageCursor = managedQuery(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                proj, "_ID='" + thumbID + "'", null, null);
 
-            if (imageCursor != null && imageCursor.moveToFirst()) {
-                if (imageCursor.getCount() > 0) {
-                    int imgData = imageCursor.getColumnIndex(MediaStore.Images.Media.DATA);
-                    imageDataPath = imageCursor.getString(imgData);
-                }
+        if (imageCursor != null && imageCursor.moveToFirst()) {
+            if (imageCursor.getCount() > 0) {
+                int imgData = imageCursor.getColumnIndex(MediaStore.Images.Media.DATA);
+                imageDataPath = imageCursor.getString(imgData);
             }
-            imageCursor.close();
-            return imageDataPath;
         }
+        imageCursor.close();
+        return imageDataPath;
     }
 
     @Override
@@ -283,7 +344,7 @@ public class SpotActivity extends AppCompatActivity {
                     Color.RED
                     : Color.WHITE);
             //setBackgroundDrawable(checked ?
-            //        getResources().getDrawable(R.drawable.checked)
+            //       getResources().getDrawable(R.drawable.checked)
             //        : null);
         }
 
@@ -300,11 +361,28 @@ public class SpotActivity extends AppCompatActivity {
     //multichoicemodelistener
 
     public class MultiChoiceModeListener implements GridView.MultiChoiceModeListener {
+
+        @Override
+        public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+            int selectCount = gv.getCheckedItemCount();
+            selImgPosList.add(position);
+            switch (selectCount) {
+                case 1:
+                    mode.setSubtitle("One item selected");
+                    break;
+                default:
+                    mode.setSubtitle("" + selectCount + " items selected");
+                    break;
+            }
+        }
+
+        @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             mode.setTitle("Select Items");
             mode.setSubtitle("One item selected");
             return true;
         }
+
 
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
             return true;
@@ -317,19 +395,8 @@ public class SpotActivity extends AppCompatActivity {
         public void onDestroyActionMode(ActionMode mode) {
         }
 
-        public void onItemCheckedStateChanged(ActionMode mode, int position, long id,
-                                              boolean checked) {
 
-            int selectCount = gv.getCheckedItemCount();
-            switch (selectCount) {
-                case 1:
-                    mode.setSubtitle("One item selected");
-                    break;
-                default:
-                    mode.setSubtitle("" + selectCount + " items selected");
-                    break;
-            }
-        }
 
     }
+
 }

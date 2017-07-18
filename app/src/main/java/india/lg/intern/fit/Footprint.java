@@ -1,5 +1,7 @@
 package india.lg.intern.fit;
 
+import android.content.Context;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -23,47 +25,22 @@ public class Footprint implements Parcelable, Serializable {
     private Country country;
     private Date start;
     private Date end;
-    private ArrayList<Location> posList;
+    private transient ArrayList<Location> posList;
     private ArrayList<Spot> spotList;
 
-    public Footprint() { }
-    public Footprint(String nm) {
-        name = nm;
-        date = getCurrentTime();
-        country = Country.SOUTH_KOREA;
-        posList = new ArrayList<Location>();
-        Location l1 = new Location("");
-        l1.setLatitude(37);
-        l1.setLongitude(127);
-        Location l2 = new Location("");
-        l2.setLatitude(37.01);
-        l2.setLongitude(127.01);
-        Location l3 = new Location("");
-        l3.setLatitude(37.02);
-        l3.setLongitude(127.02);
-        Location l4 = new Location("");
-        l4.setLatitude(37.03);
-        l4.setLongitude(127.03);
-        Location l5 = new Location("");
-        l5.setLatitude(37.04);
-        l5.setLongitude(127.04);
-        posList.add(l1);
-        posList.add(l2);
-        posList.add(l3);
-        posList.add(l4);
-        posList.add(l5);
-        spotList = new ArrayList<Spot>();
-        spotList.add(new Spot(l2));
-        spotList.add(new Spot(l4));
-    }
+    private String posListStr = "";
 
-    public Footprint(String nm, ArrayList<Location> locList) {
+    public Footprint() { }
+
+    public Footprint(Context context, String nm, ArrayList<Location> locList) {
         name = nm;
         date = getCurrentTime();
-        country = Country.SOUTH_KOREA;
+        country = Country.locToCountry(context, locList.get(0));
         posList = locList;
         spotList = new ArrayList<Spot>();
-        spotList.add(new Spot());
+
+        // For test
+        spotList.add(new Spot(0));
     }
 
     public static String getCurrentTime() {
@@ -167,5 +144,30 @@ public class Footprint implements Parcelable, Serializable {
         parcel.writeSerializable(end);
         parcel.writeList(posList);
         parcel.writeList(spotList);
+    }
+
+    public void serializePosList() {
+        posListStr = "";
+
+        for (Location pos : posList) {
+            posListStr += pos.getLatitude() + "," +
+                    pos.getLongitude() + "," +
+                    pos.getTime() + "/";
+        }
+    }
+
+    public void  deserializePosList() {
+        posList = new ArrayList<Location>();
+
+        Location loc = new Location("");
+        for (String token : posListStr.split("/")) {
+            String[] data = token.split(",");
+
+            loc.setLatitude(Double.parseDouble(data[0]));
+            loc.setLongitude(Double.parseDouble(data[1]));
+            loc.setTime(Long.parseLong(data[2]));
+
+            posList.add(loc);
+        }
     }
 }
