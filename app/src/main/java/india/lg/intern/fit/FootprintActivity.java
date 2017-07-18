@@ -61,7 +61,9 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
     public boolean onMarkerClick(Marker marker) {
         Intent intent = new Intent(FootprintActivity.this, SpotActivity.class);
         Bundle b = new Bundle();
-        b.putParcelable("Spot", fp.getSpotList().get(Integer.parseInt(marker.getTitle().substring(4))));
+        Spot temp = fp.getSpotList().get(Integer.parseInt(marker.getTitle().substring(4)));
+        b.putParcelable("Spot", temp);
+        b.putParcelable("Location", fp.getPosList().get(temp.getPosIdx()));
         intent.putExtra("Bundle", b);
         startActivity(intent);
 

@@ -66,6 +66,7 @@ public class SpotActivity extends AppCompatActivity implements View.OnClickListe
     private ArrayList<Integer> selImgPosList;
 
     private Spot spot;
+    private Location spotLoc;
 
     private ImageButton imageButton;
 
@@ -76,6 +77,7 @@ public class SpotActivity extends AppCompatActivity implements View.OnClickListe
         mContext = this;
 
         spot = (Spot) getIntent().getBundleExtra("Bundle").getParcelable("Spot");
+        spotLoc = (Location) getIntent().getBundleExtra("Bundle").getParcelable("Location");
 
         // Permission
         // Here, thisActivity is the current activity
