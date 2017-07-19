@@ -99,6 +99,15 @@ public class HistoryAdapter extends ArrayAdapter<String> {
         this.fpList = fpList;
     }
 
+    public void clearData() {
+        // clear the data
+        fpList.clear();
+        nameList.clear();
+        dateList.clear();
+        countryList.clear();
+        imageList.clear();
+    }
+
     class ViewH {
         public TextView hname = null;
         public TextView hdate = null;
