@@ -1,6 +1,8 @@
 package india.lg.intern.fit;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -12,6 +14,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -62,6 +66,18 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        MarkerOptions opt = new MarkerOptions();
+
+        int n = 0;
+        for (Spot spot : fp.getSpotList()) {
+            LatLng pos = locToLatLng(fp.getPosList().get(spot.getPosIdx()));
+            opt.position(pos);
+            opt.snippet("" + n++);
+            Bitmap bitmap = BitmapFactory.decodeFile(spot.getImageDataList().get(0));
+            Bitmap resized = Bitmap.createScaledBitmap(bitmap, 300, 300, true);
+            opt.icon(BitmapDescriptorFactory.fromBitmap(resized));
+            mMap.addMarker(opt);
+        }
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locToLatLng(fp.getPosList().get(0)), 11));
         mMap.setOnMarkerClickListener(this);
 
@@ -80,11 +96,11 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
         String str_origin = "origin="+posList.get(0).getLatitude()+","+posList.get(0).getLongitude();
 
         // Destination of route
-        String str_dest = "destination="+posList.get(posList.size()).getLatitude()+","+posList.get(posList.size()).getLongitude();
+        String str_dest = "destination="+posList.get(posList.size()-1).getLatitude()+","+posList.get(posList.size()-1).getLongitude();
 
         // Waypoints
         String waypoints = "waypoints=";
-        for(int i = 1; i < posList.size() - 1; i++){
+        for(int i = 1; i < posList.size() - 2; i++) {
             waypoints += posList.get(i).getLatitude() + "," + posList.get(i).getLongitude() + "|";
         }
 
@@ -238,7 +254,7 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
     public boolean onMarkerClick(Marker marker) {
         Intent intent = new Intent(FootprintActivity.this, SpotActivity.class);
         Bundle b = new Bundle();
-        Spot temp = fp.getSpotList().get(Integer.parseInt(marker.getTitle().substring(4)));
+        Spot temp = fp.getSpotList().get(Integer.parseInt(marker.getSnippet()));
         b.putParcelable("Spot", temp);
         b.putParcelable("Location", fp.getPosList().get(temp.getPosIdx()));
         intent.putExtra("Bundle", b);

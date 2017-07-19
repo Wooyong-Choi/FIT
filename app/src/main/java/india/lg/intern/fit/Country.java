@@ -42,7 +42,6 @@ public enum Country implements Serializable {
 
     public static Country locToCountry(Context content, Location loc) {
         Geocoder geocoder = new Geocoder(content);
-        List<Address> list = null;
         try {
             return codeToCountry((geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 3)).get(0).getCountryCode());
         } catch (IOException e) {

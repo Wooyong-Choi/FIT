@@ -1,12 +1,14 @@
 package india.lg.intern.fit;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.MediaStore;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -38,9 +40,6 @@ public class Footprint implements Parcelable, Serializable {
         country = Country.locToCountry(context, locList.get(0));
         posList = locList;
         spotList = new ArrayList<Spot>();
-
-        // For test
-        spotList.add(new Spot(0));
     }
 
     public static String getCurrentTime() {
@@ -107,6 +106,14 @@ public class Footprint implements Parcelable, Serializable {
 
     public void setSpotList(ArrayList<Spot> spotList) {
         this.spotList = spotList;
+    }
+
+    public int findSpotIdx(int idx) {
+        for (int i = 0; i < spotList.size(); i++)
+            if (spotList.get(i).getPosIdx() == idx)
+                return i;
+
+        return -1;
     }
 
     @Override

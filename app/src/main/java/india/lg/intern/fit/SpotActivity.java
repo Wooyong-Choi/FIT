@@ -79,21 +79,6 @@ public class SpotActivity extends AppCompatActivity implements View.OnClickListe
         spot = (Spot) getIntent().getBundleExtra("Bundle").getParcelable("Spot");
         spotLoc = (Location) getIntent().getBundleExtra("Bundle").getParcelable("Location");
 
-        // Permission
-        // Here, thisActivity is the current activity
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
-            } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        1);
-            }
-        }
 
         gv = (GridView) findViewById(R.id.gridview);
         final ImageAdapter ia = new ImageAdapter(this);
@@ -185,13 +170,10 @@ public class SpotActivity extends AppCompatActivity implements View.OnClickListe
         private String imgData;
         private String geoData;
         private ArrayList<String> thumbsDataList;
-        private ArrayList<String> thumbsIDList;
 
         ImageAdapter(Context c) {
             mContext = c;
-            thumbsDataList = new ArrayList<String>();
-            thumbsIDList = new ArrayList<String>();
-            getThumbInfo(thumbsIDList, thumbsDataList);
+            thumbsDataList = spot.getImageDataList();
         }
         //new field to store th checked objects
         class Image {
@@ -215,7 +197,7 @@ public class SpotActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         public int getCount() {
-            return thumbsIDList.size();
+            return thumbsDataList.size();
         }
 
         public Object getItem(int position) {
@@ -257,33 +239,6 @@ public class SpotActivity extends AppCompatActivity implements View.OnClickListe
             imageView.setImageBitmap(resized);
 
             return l;
-        }
-
-        private void getThumbInfo(ArrayList<String> thumbsIDs, ArrayList<String> thumbsDatas) {
-            String[] proj = {MediaStore.Images.Media._ID,
-                    MediaStore.Images.Media.DATA};
-
-            Cursor imageCursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
-
-            if (imageCursor != null && imageCursor.moveToFirst()) {
-                String thumbsID;
-                String thumbsData;
-
-                int thumbsIDCol = imageCursor.getColumnIndex(MediaStore.Images.Media._ID);
-                int thumbsDataCol = imageCursor.getColumnIndex(MediaStore.Images.Media.DATA);
-                int num = 0;
-                do {
-                    thumbsID = imageCursor.getString(thumbsIDCol);
-                    thumbsData = imageCursor.getString(thumbsDataCol);
-                    num++;
-                    if (thumbsID != null) {
-                        thumbsIDs.add(thumbsID);
-                        thumbsDatas.add(thumbsData);
-                    }
-                } while (imageCursor.moveToNext());
-            }
-            imageCursor.close();
-            return;
         }
     }
 
