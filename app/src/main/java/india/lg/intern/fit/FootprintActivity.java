@@ -86,7 +86,7 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
             }
             else {
                 Bitmap resized = Bitmap.createScaledBitmap(bitmap, spot.getImageDataList().size() * 300, spot.getImageDataList().size() * 300, true);
-                Bitmap resized_frame = Bitmap.createScaledBitmap(bitmap_frame, spot.getImageDataList().size() * 310, spot.getImageDataList().size() * 310, true);
+                Bitmap resized_frame = Bitmap.createScaledBitmap(bitmap_frame, spot.getImageDataList().size() * 311, spot.getImageDataList().size() * 310, true);
                 frame.icon(BitmapDescriptorFactory.fromBitmap(resized_frame));
                 opt.icon(BitmapDescriptorFactory.fromBitmap(resized));
             }
