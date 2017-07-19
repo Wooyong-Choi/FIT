@@ -154,8 +154,6 @@ public class Footprint implements Parcelable, Serializable {
     }
 
     public void serializePosList() {
-        posListStr = "";
-
         for (Location pos : posList) {
             posListStr += pos.getLatitude() + "," +
                     pos.getLongitude() + "," +
@@ -176,5 +174,7 @@ public class Footprint implements Parcelable, Serializable {
 
             posList.add(loc);
         }
+
+        posListStr = "";
     }
 }

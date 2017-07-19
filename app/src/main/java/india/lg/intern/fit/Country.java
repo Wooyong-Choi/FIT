@@ -4,6 +4,7 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -45,10 +46,9 @@ public enum Country implements Serializable {
         try {
             return codeToCountry((geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 3)).get(0).getCountryCode());
         } catch (IOException e) {
-            e.printStackTrace();
+            Toast.makeText(content, "Getting country...", Toast.LENGTH_SHORT).show();
+            return locToCountry(content, loc);
         }
-
-        return null;
     }
 
     public String toString() {
