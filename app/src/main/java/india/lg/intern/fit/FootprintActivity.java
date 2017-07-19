@@ -67,18 +67,34 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
         mMap = googleMap;
 
         MarkerOptions opt = new MarkerOptions();
+        MarkerOptions frame= new MarkerOptions();
 
         int n = 0;
         for (Spot spot : fp.getSpotList()) {
             LatLng pos = locToLatLng(fp.getPosList().get(spot.getPosIdx()));
             opt.position(pos);
+            frame.position(pos);
             opt.snippet("" + n++);
             Bitmap bitmap = BitmapFactory.decodeFile(spot.getImageDataList().get(0));
-            Bitmap resized = Bitmap.createScaledBitmap(bitmap, 300, 300, true);
-            opt.icon(BitmapDescriptorFactory.fromBitmap(resized));
+            Bitmap bitmap_frame = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.frame);
+
+            if(spot.getImageDataList().size()<2){
+                Bitmap resized = Bitmap.createScaledBitmap(bitmap, spot.getImageDataList().size()*150, spot.getImageDataList().size()*150, true);
+                Bitmap resized_frame = Bitmap.createScaledBitmap(bitmap_frame, spot.getImageDataList().size()*155, spot.getImageDataList().size()*155, true);
+                frame.icon(BitmapDescriptorFactory.fromBitmap(resized_frame));
+                opt.icon(BitmapDescriptorFactory.fromBitmap(resized));
+            }
+            else {
+                Bitmap resized = Bitmap.createScaledBitmap(bitmap, spot.getImageDataList().size() * 300, spot.getImageDataList().size() * 300, true);
+                Bitmap resized_frame = Bitmap.createScaledBitmap(bitmap_frame, spot.getImageDataList().size() * 310, spot.getImageDataList().size() * 310, true);
+                frame.icon(BitmapDescriptorFactory.fromBitmap(resized_frame));
+                opt.icon(BitmapDescriptorFactory.fromBitmap(resized));
+            }
             mMap.addMarker(opt);
+            mMap.addMarker(frame);
         }
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locToLatLng(fp.getPosList().get(0)), 11));
+        moveThere(fp.getPosList().get(0).getLatitude(),fp.getPosList().get(0).getLongitude()); //찍힌 위치 기준으로 줌인
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locToLatLng(fp.getPosList().get(0)), 11));
         mMap.setOnMarkerClickListener(this);
 
         // Getting URL to the Google Directions API
@@ -265,5 +281,12 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
 
     private LatLng locToLatLng(Location loc) {
         return new LatLng(loc.getLatitude(), loc.getLongitude());
+    }
+
+    public void moveThere(double lat, double lng) {//특정위치 기준으로 줌하는 함수
+        LatLng latLng = new LatLng(lat, lng);   // 경도,위도, 특정위치 기준으로 지도 띄우기
+        // (설정시 moveThere을 통해 바로 값을 던져주어도 되고 처음부터 변수를 지정해주셔도됩니다.
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12)); //16배율 고정
+        // mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
     }
 }
