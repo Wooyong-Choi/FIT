@@ -1,29 +1,21 @@
 package india.lg.intern.fit;
 
-import android.*;
-import android.Manifest;
-import android.app.backup.SharedPreferencesBackupHelper;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
-import android.os.IBinder;
-import android.provider.ContactsContract;
-import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -33,6 +25,7 @@ import java.util.Date;
 public class MakeActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Footprint fp;
+    private String nameTemp;
 
     private Date start;
 
@@ -126,6 +119,7 @@ public class MakeActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(getApplicationContext(), "Complete to collect Position", Toast.LENGTH_SHORT).show();
 
             fp = new Footprint(getApplicationContext(), "TEST", locList);
+            fp.setName(nameTemp);
             fp.setEnd(Calendar.getInstance().getTime());
             fp.setStart(start);
             findSpot(fp);
@@ -145,7 +139,7 @@ public class MakeActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        Button btn = ((Button) v);
+        final Button btn = ((Button) v);
 
         if (btn.getText().equals("Collect")) {
             start = Calendar.getInstance().getTime();
@@ -156,15 +150,28 @@ public class MakeActivity extends AppCompatActivity implements View.OnClickListe
             Intent intent = new Intent(this, PosCollector.class);
             startService(intent);
 
-        } else if (btn.getText().equals("Stop")){
+        } else if (btn.getText().equals("Stop")) {
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+            LayoutInflater inflater = this.getLayoutInflater();
+            final View dialogView = inflater.inflate(R.layout.name_dialog, null);
+            dialogBuilder.setView(dialogView);
 
+            final EditText edt = (EditText) dialogView.findViewById(R.id.editTextName);
 
-            Intent intent = new Intent(this, PosCollector.class);
-            stopService(intent);
+            dialogBuilder.setTitle("Your Footprint Name");
+            dialogBuilder.setMessage("Enter name below");
+            dialogBuilder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    nameTemp = edt.getText().toString();
 
-            btn.setText("Collect");
+                    Intent intent = new Intent(getApplicationContext(), PosCollector.class);
+                    stopService(intent);
+
+                    btn.setText("Collect");
+                }
+            });
+            AlertDialog b = dialogBuilder.create();
+            b.show();
         }
     }
-
-
 }

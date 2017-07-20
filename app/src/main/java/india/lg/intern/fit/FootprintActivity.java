@@ -6,15 +6,14 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -69,12 +68,12 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
         MarkerOptions opt = new MarkerOptions();
         MarkerOptions frame = new MarkerOptions();
 
-        int n = 0;
         opt.position(locToLatLng(fp.getPosList().get(0)));
         mMap.addMarker(opt);
         opt.position(locToLatLng(fp.getPosList().get(fp.getPosList().size()-1)));
         mMap.addMarker(opt);
 
+        int n = 0;
         for (Spot spot : fp.getSpotList()) {
             LatLng pos = locToLatLng(fp.getPosList().get(spot.getPosIdx()));
             opt.position(pos);
@@ -98,7 +97,6 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
             mMap.addMarker(opt);
             mMap.addMarker(frame);
         }
-        moveThere(fp.getPosList().get(0).getLatitude(),fp.getPosList().get(0).getLongitude()); // 찍힌 위치 기준으로 줌인
         // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locToLatLng(fp.getPosList().get(0)), 11));
         mMap.setOnMarkerClickListener(this);
 
@@ -112,9 +110,9 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
             downloadTask.execute(url);
         } else {
             int num = fp.getPosList().size() / 10;
-            for (int i = 0; i < num; i++) {
+            for (int i = 0; i <= num; i++) {
                 int firstIdx = 0 + 10*i;
-                int lastIdx = i == num-1 ? fp.getPosList().size() - firstIdx : 10 + 10*i;
+                int lastIdx = (i != num ? firstIdx + 9 : fp.getPosList().size() - 1);
                 // Getting URL to the Google Directions API
                 String url = getDirectionsUrl(fp.getPosList().subList(firstIdx, lastIdx));
 
@@ -139,7 +137,7 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
 
         // Waypoints
         String waypoints = "waypoints=";
-        for(int i = 1; i < posList.size()-2; i++) {
+        for(int i = 1; i < posList.size()-1; i++) {
             waypoints += posList.get(i).getLatitude() + "," + posList.get(i).getLongitude() + "|";
         }
 
@@ -148,7 +146,7 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
         if (posList.size() == 2)
             parameters = str_origin+"&"+str_dest;
         else
-            parameters = str_origin+"&"+str_dest+"&"+waypoints.substring(waypoints.length()-2);
+            parameters = str_origin+"&"+str_dest+"&"+waypoints.substring(0, waypoints.length()-1);
 
         // Output format
         String output = "json";
@@ -192,7 +190,7 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
 
         }catch(Exception e){
             Log.d("Exception", e.toString());
-        }finally{
+        } finally{
             iStream.close();
             urlConnection.disconnect();
         }
@@ -284,7 +282,7 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
 
                 // Adding all the points in the route to LineOptions
                 lineOptions.addAll(points);
-                lineOptions.width(6);
+                lineOptions.width(10);
                 lineOptions.color(Color.RED);
             }
 
