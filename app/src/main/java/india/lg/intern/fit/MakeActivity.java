@@ -34,7 +34,7 @@ public class MakeActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_make);
 
-        ((Button) findViewById(R.id.collect)).setOnClickListener(this);
+        findViewById(R.id.collect).setOnClickListener(this);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 mMessageReceiver, new IntentFilter("PosCollector"));

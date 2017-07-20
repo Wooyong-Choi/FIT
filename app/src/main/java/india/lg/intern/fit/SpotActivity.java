@@ -60,8 +60,8 @@ public class SpotActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_spot);
         mContext = this;
 
-        spot = (Spot) getIntent().getBundleExtra("Bundle").getParcelable("Spot");
-        spotLoc = (Location) getIntent().getBundleExtra("Bundle").getParcelable("Location");
+        spot = getIntent().getBundleExtra("Bundle").getParcelable("Spot");
+        spotLoc = getIntent().getBundleExtra("Bundle").getParcelable("Location");
 
 
         gv = (GridView) findViewById(R.id.gridview);

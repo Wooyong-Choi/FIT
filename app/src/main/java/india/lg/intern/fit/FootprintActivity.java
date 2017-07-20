@@ -44,7 +44,7 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
         setContentView(R.layout.activity_footprint);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 
-        fp = (Footprint) getIntent().getBundleExtra("Bundle").getParcelable("Footprint");
+        fp = getIntent().getBundleExtra("Bundle").getParcelable("Footprint");
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -67,6 +67,9 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
 
         MarkerOptions opt = new MarkerOptions();
         MarkerOptions frame = new MarkerOptions();
+
+        moveThere(fp.getPosList().get(0).getLatitude(),
+                fp.getPosList().get(0).getLongitude());
 
         opt.position(locToLatLng(fp.getPosList().get(0)));
         mMap.addMarker(opt);
@@ -312,7 +315,7 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
     public void moveThere(double lat, double lng) {//특정위치 기준으로 줌하는 함수
         LatLng latLng = new LatLng(lat, lng);   // 경도,위도, 특정위치 기준으로 지도 띄우기
         // (설정시 moveThere을 통해 바로 값을 던져주어도 되고 처음부터 변수를 지정해주셔도됩니다.
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12)); //16배율 고정
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14)); //16배율 고정
         // mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
     }
 }
