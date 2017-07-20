@@ -4,7 +4,9 @@ package india.lg.intern.fit;
  * Created by WooYong on 2017-07-14.
  */
 
-import java.io.EOFException;
+import android.app.Activity;
+import android.content.Context;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,9 +15,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-
-import android.app.Activity;
-import android.content.Context;
 
 /**
  *

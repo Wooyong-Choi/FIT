@@ -1,15 +1,12 @@
 package india.lg.intern.fit;
 
 import android.content.Context;
-import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by WooYong on 2017-07-05.

@@ -21,7 +21,6 @@ import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.GoogleMap;
 
 import java.util.ArrayList;
 
@@ -93,8 +92,8 @@ public class PosCollector extends Service implements
 
         mLocationRequest = new LocationRequest();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval((long)(1000 * 10));
-        mLocationRequest.setFastestInterval((long)(1000 * 10));
+        mLocationRequest.setInterval((long)(1000 * 3));
+        mLocationRequest.setFastestInterval((long)(1000 * 2));
 
         int nper1 = ContextCompat.checkSelfPermission
                 (this, android.Manifest.permission.ACCESS_FINE_LOCATION);

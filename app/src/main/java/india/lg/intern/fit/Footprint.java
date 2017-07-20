@@ -1,16 +1,9 @@
 package india.lg.intern.fit;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationManager;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.provider.MediaStore;
-
-import com.google.android.gms.maps.model.LatLng;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -154,20 +147,23 @@ public class Footprint implements Parcelable, Serializable {
     }
 
     public void serializePosList() {
+        posListStr = "";
+
         for (Location pos : posList) {
             posListStr += pos.getLatitude() + "," +
                     pos.getLongitude() + "," +
                     pos.getTime() + "/";
         }
+
     }
 
     public void  deserializePosList() {
         posList = new ArrayList<Location>();
-
-        Location loc = new Location("");
-        for (String token : posListStr.split("/")) {
+        String[] strList = posListStr.split("/");
+        for (String token : strList) {
             String[] data = token.split(",");
 
+            Location loc = new Location("");
             loc.setLatitude(Double.parseDouble(data[0]));
             loc.setLongitude(Double.parseDouble(data[1]));
             loc.setTime(Long.parseLong(data[2]));
