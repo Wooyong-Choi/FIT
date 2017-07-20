@@ -1,7 +1,7 @@
 package india.lg.intern.fit;
 
-import android.*;
 import android.Manifest;
+import android.app.SearchManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -12,9 +12,11 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.SearchView;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
 
 import java.util.ArrayList;
 
@@ -23,7 +25,9 @@ import static android.provider.AlarmClock.EXTRA_MESSAGE;
 public class MainActivity extends AppCompatActivity {
 
     private ListView listview;
+    private SearchView searchView;
     private HistoryAdapter historyAdapter;
+    private ArrayList<Footprint> fpList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +70,50 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        searchView = (SearchView) findViewById(R.id.search);
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                historyAdapter.clearData();
+
+                fpList = DataAccessor.readFplist(getApplicationContext());
+                if (fpList != null)
+                    for (Footprint fp : fpList)
+                        historyAdapter.add(fp);
+
+                historyAdapter.notifyDataSetChanged();
+                return true;
+            }
+        });
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+
+                historyAdapter.clearData();
+                for (Footprint fp : fpList) {
+                    if (fp.getName().contains(query)) {
+                        historyAdapter.add(fp);
+                    }
+                }
+                historyAdapter.notifyDataSetChanged();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+
+                historyAdapter.clearData();
+                for (Footprint fp : fpList) {
+                    if (fp.getName().contains(query)) {
+                        historyAdapter.add(fp);
+                    }
+                }
+                historyAdapter.notifyDataSetChanged();
+                return true;
+            }
+        });
+
+
         listview = (ListView)findViewById(R.id.historyList);
         historyAdapter = new HistoryAdapter(MainActivity.this, R.layout.history);
         listview.setAdapter(historyAdapter);
@@ -98,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
         historyAdapter.clearData();
 
-        ArrayList<Footprint> fpList = DataAccessor.readFplist(getApplicationContext());
+        fpList = DataAccessor.readFplist(getApplicationContext());
         if (fpList != null)
             for (Footprint fp : fpList)
                 historyAdapter.add(fp);
