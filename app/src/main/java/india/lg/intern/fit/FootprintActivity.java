@@ -67,9 +67,14 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
         mMap = googleMap;
 
         MarkerOptions opt = new MarkerOptions();
-        MarkerOptions frame= new MarkerOptions();
+        MarkerOptions frame = new MarkerOptions();
 
         int n = 0;
+        opt.position(locToLatLng(fp.getPosList().get(0)));
+        mMap.addMarker(opt);
+        opt.position(locToLatLng(fp.getPosList().get(fp.getPosList().size()-1)));
+        mMap.addMarker(opt);
+
         for (Spot spot : fp.getSpotList()) {
             LatLng pos = locToLatLng(fp.getPosList().get(spot.getPosIdx()));
             opt.position(pos);
@@ -78,35 +83,52 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
             Bitmap bitmap = BitmapFactory.decodeFile(spot.getImageDataList().get(0));
             Bitmap bitmap_frame = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.frame);
 
-            if(spot.getImageDataList().size()<2){
-                Bitmap resized = Bitmap.createScaledBitmap(bitmap, spot.getImageDataList().size()*150, spot.getImageDataList().size()*150, true);
-                Bitmap resized_frame = Bitmap.createScaledBitmap(bitmap_frame, spot.getImageDataList().size()*155, spot.getImageDataList().size()*155, true);
+            if(spot.getImageDataList().size() < 5) {
+                Bitmap resized = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
+                Bitmap resized_frame = Bitmap.createScaledBitmap(bitmap_frame, 105, 105, true);
                 frame.icon(BitmapDescriptorFactory.fromBitmap(resized_frame));
                 opt.icon(BitmapDescriptorFactory.fromBitmap(resized));
             }
             else {
-                Bitmap resized = Bitmap.createScaledBitmap(bitmap, spot.getImageDataList().size() * 300, spot.getImageDataList().size() * 300, true);
-                Bitmap resized_frame = Bitmap.createScaledBitmap(bitmap_frame, spot.getImageDataList().size() * 311, spot.getImageDataList().size() * 310, true);
+                Bitmap resized = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
+                Bitmap resized_frame = Bitmap.createScaledBitmap(bitmap_frame, 210, 210, true);
                 frame.icon(BitmapDescriptorFactory.fromBitmap(resized_frame));
                 opt.icon(BitmapDescriptorFactory.fromBitmap(resized));
             }
             mMap.addMarker(opt);
             mMap.addMarker(frame);
         }
-        moveThere(fp.getPosList().get(0).getLatitude(),fp.getPosList().get(0).getLongitude()); //찍힌 위치 기준으로 줌인
-        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locToLatLng(fp.getPosList().get(0)), 11));
+        moveThere(fp.getPosList().get(0).getLatitude(),fp.getPosList().get(0).getLongitude()); // 찍힌 위치 기준으로 줌인
+        // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locToLatLng(fp.getPosList().get(0)), 11));
         mMap.setOnMarkerClickListener(this);
 
-        // Getting URL to the Google Directions API
-        String url = getDirectionsUrl(fp.getPosList());
+        if (fp.getPosList().size() <= 10) {
+            // Getting URL to the Google Directions API
+            String url = getDirectionsUrl(fp.getPosList());
 
-        DownloadTask downloadTask = new DownloadTask();
+            DownloadTask downloadTask = new DownloadTask();
 
-        // Start downloading json data from Google Directions API
-        downloadTask.execute(url);
+            // Start downloading json data from Google Directions API
+            downloadTask.execute(url);
+        } else {
+            int num = fp.getPosList().size() / 10;
+            for (int i = 0; i < num; i++) {
+                int firstIdx = 0 + 10*i;
+                int lastIdx = i == num-1 ? fp.getPosList().size() - firstIdx : 10 + 10*i;
+                // Getting URL to the Google Directions API
+                String url = getDirectionsUrl(fp.getPosList().subList(firstIdx, lastIdx));
+
+                DownloadTask downloadTask = new DownloadTask();
+
+                // Start downloading json data from Google Directions API
+                downloadTask.execute(url);
+            }
+        }
+
+
     }
 
-    private String getDirectionsUrl(ArrayList<Location> posList){
+    private String getDirectionsUrl(List<Location> posList) {
 
         // Origin of route
         String str_origin = "origin="+posList.get(0).getLatitude()+","+posList.get(0).getLongitude();
@@ -114,20 +136,25 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
         // Destination of route
         String str_dest = "destination="+posList.get(posList.size()-1).getLatitude()+","+posList.get(posList.size()-1).getLongitude();
 
+
         // Waypoints
         String waypoints = "waypoints=";
-        for(int i = 1; i < posList.size() - 2; i++) {
+        for(int i = 1; i < posList.size()-2; i++) {
             waypoints += posList.get(i).getLatitude() + "," + posList.get(i).getLongitude() + "|";
         }
 
         // Building the parameters to the web service
-        String parameters = str_origin+"&"+str_dest+"&"+waypoints;
+        String parameters;
+        if (posList.size() == 2)
+            parameters = str_origin+"&"+str_dest;
+        else
+            parameters = str_origin+"&"+str_dest+"&"+waypoints.substring(waypoints.length()-2);
 
         // Output format
         String output = "json";
 
         // Building the url to the web service
-        String url = "https://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
+        String url = "https://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters+"&mode=walking";
 
 
         return url;
@@ -237,7 +264,7 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
             PolylineOptions lineOptions = null;
 
             // Traversing through all the routes
-            for(int i=0;i<result.size();i++){
+            for(int i = 0; i < result.size(); i++){
                 points = new ArrayList<LatLng>();
                 lineOptions = new PolylineOptions();
 
@@ -245,7 +272,7 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
                 List<HashMap<String, String>> path = result.get(i);
 
                 // Fetching all the points in i-th route
-                for(int j=0;j<path.size();j++){
+                for(int j=0;j<path.size();j++) {
                     HashMap<String,String> point = path.get(j);
 
                     double lat = Double.parseDouble(point.get("lat"));
@@ -257,7 +284,7 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
 
                 // Adding all the points in the route to LineOptions
                 lineOptions.addAll(points);
-                lineOptions.width(2);
+                lineOptions.width(6);
                 lineOptions.color(Color.RED);
             }
 
@@ -268,14 +295,15 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        Intent intent = new Intent(FootprintActivity.this, SpotActivity.class);
-        Bundle b = new Bundle();
-        Spot temp = fp.getSpotList().get(Integer.parseInt(marker.getSnippet()));
-        b.putParcelable("Spot", temp);
-        b.putParcelable("Location", fp.getPosList().get(temp.getPosIdx()));
-        intent.putExtra("Bundle", b);
-        startActivity(intent);
-
+        if (marker.getSnippet() != null) {
+            Intent intent = new Intent(FootprintActivity.this, SpotActivity.class);
+            Bundle b = new Bundle();
+            Spot temp = fp.getSpotList().get(Integer.parseInt(marker.getSnippet()));
+            b.putParcelable("Spot", temp);
+            b.putParcelable("Location", fp.getPosList().get(temp.getPosIdx()));
+            intent.putExtra("Bundle", b);
+            startActivity(intent);
+        }
         return true;
     }
 

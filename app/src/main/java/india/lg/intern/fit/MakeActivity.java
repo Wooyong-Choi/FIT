@@ -60,7 +60,11 @@ public class MakeActivity extends AppCompatActivity implements View.OnClickListe
             String select =  MediaStore.Images.Media.DATE_TAKEN + " > " + fp.getStart().getTime()
                     + " AND " + MediaStore.Images.Media.DATE_TAKEN + " < " + fp.getEnd().getTime();
 
-            Cursor imageCursor = getContentResolver(). query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj, select, null, null);
+            String orderBy = MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC";
+
+            Cursor imageCursor = getContentResolver()
+                    .query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                            proj, select, null, orderBy);
 
             if (imageCursor.getCount() == 0) return;
 
@@ -71,8 +75,13 @@ public class MakeActivity extends AppCompatActivity implements View.OnClickListe
                 int thumbsLngCol = imageCursor.getColumnIndex(MediaStore.Images.Media.LONGITUDE);
 
                 do {
-                    double lat = Double.parseDouble(imageCursor.getString(thumbsLatCol));
-                    double lng = Double.parseDouble(imageCursor.getString(thumbsLngCol));
+                    String latStr = imageCursor.getString(thumbsLatCol);
+                    String lngStr = imageCursor.getString(thumbsLngCol);
+                    if (latStr == null || lngStr == null)
+                        continue;
+
+                    double lat = Double.parseDouble(latStr);
+                    double lng = Double.parseDouble(lngStr);
 
                     double minVal = Double.MAX_VALUE;
                     int minIdx = 0;
@@ -110,8 +119,8 @@ public class MakeActivity extends AppCompatActivity implements View.OnClickListe
 
             // Get extra data included in the Intent
             ArrayList<Location> locList = (ArrayList<Location>) intent.getSerializableExtra("Location");
-            if (locList == null) {
-                Toast.makeText(context, "Cannot find location", Toast.LENGTH_SHORT).show();
+            if (locList == null || locList.size() == 0) {
+                Toast.makeText(context, "Cannot collect location", Toast.LENGTH_SHORT).show();
                 return;
             }
             Toast.makeText(getApplicationContext(), "Complete to collect Position", Toast.LENGTH_SHORT).show();
@@ -148,6 +157,7 @@ public class MakeActivity extends AppCompatActivity implements View.OnClickListe
             startService(intent);
 
         } else if (btn.getText().equals("Stop")){
+
 
             Intent intent = new Intent(this, PosCollector.class);
             stopService(intent);

@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
                         new String[]{ android.Manifest.permission.ACCESS_FINE_LOCATION,
                                 android.Manifest.permission.ACCESS_COARSE_LOCATION,
                                 android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                                android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                android.Manifest.permission.WRITE_EXTERNAL_STORAGE },
                         1);
             }
         }
@@ -157,16 +157,9 @@ public class MainActivity extends AppCompatActivity {
                     // Start the thread
                     tutThread.start();
 
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 }

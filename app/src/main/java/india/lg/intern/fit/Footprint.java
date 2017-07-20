@@ -174,7 +174,5 @@ public class Footprint implements Parcelable, Serializable {
 
             posList.add(loc);
         }
-
-        posListStr = "";
     }
 }

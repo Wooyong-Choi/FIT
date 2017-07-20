@@ -4,6 +4,7 @@ package india.lg.intern.fit;
  * Created by WooYong on 2017-07-14.
  */
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,7 +28,6 @@ public class DataAccessor {
 
     private static String filename = "FP_DB.db";
 
-
     /**
      *
      * @param context
@@ -37,12 +37,17 @@ public class DataAccessor {
 
         ObjectOutputStream objectOut = null;
         try {
-            FileOutputStream fileOut = context.openFileOutput(filename, Activity.MODE_PRIVATE);
-            objectOut = new ObjectOutputStream(fileOut);
+            if (object == null) {
+                FileOutputStream fileOut = context.openFileOutput(filename, Activity.MODE_PRIVATE);
+                objectOut = new ObjectOutputStream(fileOut);
+                objectOut.writeObject(new ArrayList<Footprint>());
+                return;
+            }
 
             ArrayList<Footprint> fpList = readFplist(context);
-            if (fpList == null) fpList = new ArrayList<Footprint>();
-            if (object == null) return;
+            FileOutputStream fileOut = context.openFileOutput(filename, Activity.MODE_PRIVATE);
+
+            objectOut = new ObjectOutputStream(fileOut);
 
             object.serializePosList();
 
@@ -86,17 +91,13 @@ public class DataAccessor {
             object = (ArrayList<Footprint>) objectIn.readObject();
 
             if (object != null) {
-                for (Footprint element : object) {
-                    element.deserializePosList();
+                for (int i = 0; i < object.size(); i++) {
+                    object.get(i).deserializePosList();
                 }
             }
 
         } catch(FileNotFoundException e) {
-            try {
-                File.createTempFile(filename, null, context.getCacheDir());
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+            appendFp(context, null);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {

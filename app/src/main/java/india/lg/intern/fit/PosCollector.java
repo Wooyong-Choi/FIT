@@ -93,8 +93,8 @@ public class PosCollector extends Service implements
 
         mLocationRequest = new LocationRequest();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(300);
-        mLocationRequest.setFastestInterval(150);
+        mLocationRequest.setInterval((long)(1000 * 10));
+        mLocationRequest.setFastestInterval((long)(1000 * 10));
 
         int nper1 = ContextCompat.checkSelfPermission
                 (this, android.Manifest.permission.ACCESS_FINE_LOCATION);
