@@ -35,14 +35,12 @@ import java.util.List;
 public class FootprintActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
-
     private Footprint fp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_footprint);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 
         fp = getIntent().getBundleExtra("Bundle").getParcelable("Footprint");
 
@@ -92,17 +90,21 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
                 opt.icon(BitmapDescriptorFactory.fromBitmap(resized));
             }
             else {
-                Bitmap resized = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
-                Bitmap resized_frame = Bitmap.createScaledBitmap(bitmap_frame, 210, 210, true);
+                Bitmap resized = Bitmap.createScaledBitmap(bitmap, 150, 150, true);
+                Bitmap resized_frame = Bitmap.createScaledBitmap(bitmap_frame, 157, 157, true);
                 frame.icon(BitmapDescriptorFactory.fromBitmap(resized_frame));
                 opt.icon(BitmapDescriptorFactory.fromBitmap(resized));
             }
-            mMap.addMarker(opt);
             mMap.addMarker(frame);
+            mMap.addMarker(opt);
         }
         // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locToLatLng(fp.getPosList().get(0)), 11));
         mMap.setOnMarkerClickListener(this);
 
+        drawRoute(fp);
+    }
+
+    public void drawRoute(Footprint fp) {
         if (fp.getPosList().size() <= 10) {
             // Getting URL to the Google Directions API
             String url = getDirectionsUrl(fp.getPosList());
@@ -111,10 +113,11 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
 
             // Start downloading json data from Google Directions API
             downloadTask.execute(url);
+
         } else {
-            int num = fp.getPosList().size() / 10;
+            int num = fp.getPosList().size() / 9;
             for (int i = 0; i <= num; i++) {
-                int firstIdx = 0 + 10*i;
+                int firstIdx = 0 + 9*i;
                 int lastIdx = (i != num ? firstIdx + 9 : fp.getPosList().size() - 1);
                 // Getting URL to the Google Directions API
                 String url = getDirectionsUrl(fp.getPosList().subList(firstIdx, lastIdx));
@@ -125,8 +128,6 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
                 downloadTask.execute(url);
             }
         }
-
-
     }
 
     private String getDirectionsUrl(List<Location> posList) {
@@ -191,9 +192,9 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
 
             br.close();
 
-        }catch(Exception e){
+        } catch(Exception e) {
             Log.d("Exception", e.toString());
-        } finally{
+        } finally {
             iStream.close();
             urlConnection.disconnect();
         }

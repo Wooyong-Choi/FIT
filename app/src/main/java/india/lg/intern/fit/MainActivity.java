@@ -67,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        // Start the thread
+        tutThread.start();
+
         searchView = (SearchView) findViewById(R.id.search);
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
@@ -165,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
             boolean isFirstStart = getPrefs.getBoolean("firstStart", true);
 
             //  If the activity has never started before...
-            if (isFirstStart) {
+            if (true) {
 
                 //  Launch app intro
                 final Intent i = new Intent(MainActivity.this, InitActivity.class);

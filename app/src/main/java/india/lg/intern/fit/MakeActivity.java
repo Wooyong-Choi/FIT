@@ -16,6 +16,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -34,7 +36,7 @@ public class MakeActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_make);
 
-        findViewById(R.id.collect).setOnClickListener(this);
+        ((ImageButton) findViewById(R.id.collect)).setOnClickListener(this);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 mMessageReceiver, new IntentFilter("PosCollector"));
@@ -139,18 +141,18 @@ public class MakeActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        final Button btn = ((Button) v);
+        final ImageButton btn = ((ImageButton) findViewById(R.id.collect));
 
-        if (btn.getText().equals("Collect")) {
+        if (btn.getDrawable().getConstantState().equals(getDrawable(R.drawable.collect).getConstantState())) {
             start = Calendar.getInstance().getTime();
 
-            btn.setText("Stop");
+            btn.setImageDrawable(getResources().getDrawable(R.drawable.stop));
 
             Toast.makeText(getApplicationContext(), "Start to collect Position", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, PosCollector.class);
             startService(intent);
 
-        } else if (btn.getText().equals("Stop")) {
+        } else if (btn.getDrawable().getConstantState().equals(getDrawable(R.drawable.stop).getConstantState())) {
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
             LayoutInflater inflater = this.getLayoutInflater();
             final View dialogView = inflater.inflate(R.layout.name_dialog, null);
@@ -167,7 +169,7 @@ public class MakeActivity extends AppCompatActivity implements View.OnClickListe
                     Intent intent = new Intent(getApplicationContext(), PosCollector.class);
                     stopService(intent);
 
-                    btn.setText("Collect");
+                    btn.setImageDrawable(getResources().getDrawable(R.drawable.stop));
                 }
             });
             AlertDialog b = dialogBuilder.create();

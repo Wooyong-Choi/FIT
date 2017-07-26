@@ -39,13 +39,7 @@ import java.util.List;
 public class SpotActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Context mContext;
-    private int count;
-    private Bitmap[] thumbnails;
-    private boolean[] thumbnailsselection;
-    private String[] arrPath;
-    private ImageAdapter imageAdapter;
-    Cursor imagecursor;
-    GridView gv;
+    private GridView gv;
 
     private ArrayList<Integer> selImgPosList;
 
@@ -62,7 +56,6 @@ public class SpotActivity extends AppCompatActivity implements View.OnClickListe
 
         spot = getIntent().getBundleExtra("Bundle").getParcelable("Spot");
         spotLoc = getIntent().getBundleExtra("Bundle").getParcelable("Location");
-
 
         gv = (GridView) findViewById(R.id.gridview);
         final ImageAdapter ia = new ImageAdapter(this);

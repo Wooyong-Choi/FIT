@@ -11,32 +11,38 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="?attr/colorButtonNormal"
         android:orientation="vertical">
 
         <SearchView
             android:id="@+id/search"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@drawable/common_google_signin_btn_icon_light_normal_background" />
 
         <ListView
             android:id="@+id/historyList"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:dividerHeight="15dp" />
     </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="110dp"
+        android:layout_height="86dp"
         android:layout_gravity="bottom|end"
+        android:layout_margin="5dp"
         android:layout_marginBottom="@dimen/fab_margin"
         android:layout_marginLeft="@dimen/fab_margin"
         android:layout_marginRight="@dimen/fab_margin"
         android:layout_marginTop="@dimen/fab_margin"
         android:layout_weight="1"
-        android:scaleType="fitXY"
-        app:backgroundTint="@color/colorPrimary"
-        app:srcCompat="@drawable/fab_plus_btn"
+        app:backgroundTint="@color/common_google_signin_btn_text_dark_pressed"
+        app:srcCompat="@drawable/start"
         tools:layout_editor_absoluteX="328dp"
         tools:layout_editor_absoluteY="511dp" />
 

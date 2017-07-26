@@ -18,14 +18,14 @@ public class InitActivity extends AppIntro {
         super.onCreate(savedInstanceState);
 
         // Add test slide
-        addSlide(AppIntroFragment.newInstance("Test1", "for test", R.drawable.ic_navigate_next_white, Color.parseColor("#FFB2F5")));
-        addSlide(AppIntroFragment.newInstance("Test2", "for test", R.drawable.ic_navigate_next_white, Color.parseColor("#1DDB16")));
-        addSlide(AppIntroFragment.newInstance("Test3", "for test", R.drawable.ic_navigate_next_white, Color.parseColor("#CC3D3D")));
+        addSlide(AppIntroFragment.newInstance("How to start", "Click the collect button and start your travel!", R.drawable.tutorial11, Color.parseColor("#25A599")));
+        addSlide(AppIntroFragment.newInstance("Collect", "after your trip, just click stop button and you can get your records! see your track, spot and album!", R.drawable.tutorial22, Color.parseColor("#25A599")));
+        addSlide(AppIntroFragment.newInstance("Share", "You can share your favorite photo to Instagram with auto-hastag!", R.drawable.tutorial33, Color.parseColor("#25A599")));
 
         // OPTIONAL METHODS
         // Override bar/separator color.
-        setBarColor(Color.parseColor("#3F51B5"));
-        setSeparatorColor(Color.parseColor("#2196F3"));
+        setBarColor(Color.parseColor("#000000"));
+        setSeparatorColor(Color.parseColor("#000000"));
 
         // Hide Skip/Done button.
         showSkipButton(true);
