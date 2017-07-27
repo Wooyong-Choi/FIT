@@ -11,16 +11,20 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.media.ExifInterface;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Checkable;
 import android.widget.FrameLayout;
@@ -62,12 +66,27 @@ public class SpotActivity extends AppCompatActivity implements View.OnClickListe
         gv.setAdapter(ia);
         gv.setChoiceMode(GridView.CHOICE_MODE_MULTIPLE_MODAL);
         gv.setMultiChoiceModeListener(new MultiChoiceModeListener());
+        gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View v,
+                                    int position, long id) {
+
+                // Sending image id to FullScreenActivity
+                Intent i = new Intent(getApplicationContext(), FullImageActivity.class);
+                // passing array index
+                i.putExtra("bmp", spot.getImageDataList().get(position));
+                startActivity(i);
+            }
+        });
+
         ((TextView) findViewById(R.id.testTextview)).setText("Image : " + gv.getAdapter().getCount());
 
         selImgPosList = new ArrayList<>();
 
-        imageButton = (ImageButton)findViewById(R.id.imageButton);
+        imageButton = (ImageButton) findViewById(R.id.imageButton);
         imageButton.setOnClickListener(this);
+
+
     }
 
     private Uri getLocalBitmapUri(ImageView imageView) {
@@ -86,7 +105,7 @@ public class SpotActivity extends AppCompatActivity implements View.OnClickListe
                     Environment.DIRECTORY_DOWNLOADS), "share_image_" + System.currentTimeMillis() + ".png");
             file.getParentFile().mkdirs();
             FileOutputStream out = new FileOutputStream(file);
-            bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
             out.close();
             bmpUri = Uri.fromFile(file);
         } catch (IOException e) {
@@ -127,6 +146,7 @@ public class SpotActivity extends AppCompatActivity implements View.OnClickListe
                         ImageView temp = (ImageView) ((CheckableLayout) gv.getChildAt(idx)).getChildAt(0);
                         Uri bmpUri = getLocalBitmapUri(temp);
                         share.putExtra(Intent.EXTRA_STREAM, bmpUri);
+                        share.putExtra(Intent.EXTRA_TEXT, "caption:goeshere");
                     }
 
                     share.setType(type);
@@ -147,6 +167,7 @@ public class SpotActivity extends AppCompatActivity implements View.OnClickListe
         private String imgData;
         private String geoData;
         private ArrayList<String> thumbsDataList;
+        private final int THUMBNAIL_SIZE = 345;
 
         ImageAdapter(Context c) {
             mContext = c;
@@ -192,7 +213,7 @@ public class SpotActivity extends AppCompatActivity implements View.OnClickListe
 
             if (convertView == null) {
                 imageView = new ImageView(mContext);
-                imageView.setLayoutParams(new GridView.LayoutParams(345, 345));
+                imageView.setLayoutParams(new GridView.LayoutParams(THUMBNAIL_SIZE, THUMBNAIL_SIZE));
                 imageView.setAdjustViewBounds(false);
                 imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 //imageView.setPadding(0, 2, 0, 0);
@@ -208,14 +229,40 @@ public class SpotActivity extends AppCompatActivity implements View.OnClickListe
                 return l;
             }
 
-
-            BitmapFactory.Options bo = new BitmapFactory.Options();
-            bo.inSampleSize = 8;
-            Bitmap bmp = BitmapFactory.decodeFile(thumbsDataList.get(position), bo);
-            Bitmap resized = Bitmap.createScaledBitmap(bmp, 300, 300, true);
-            imageView.setImageBitmap(resized);
+            Bitmap bmp = BitmapFactory.decodeFile(thumbsDataList.get(position));
+            bmp = ThumbnailUtils.extractThumbnail(bmp, THUMBNAIL_SIZE, THUMBNAIL_SIZE);
+            imageView.setRotation(getCameraPhotoOrientation(thumbsDataList.get(position)));
+            imageView.setImageBitmap(bmp);
 
             return l;
+        }
+
+        public int getCameraPhotoOrientation(String imagePath){
+            int rotate = 0;
+            try {
+                File imageFile = new File(imagePath);
+
+                ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+                switch (orientation) {
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        rotate = 270;
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_180:
+                        rotate = 180;
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        rotate = 90;
+                        break;
+                }
+
+                Log.i("RotateImage", "Exif orientation: " + orientation);
+                Log.i("RotateImage", "Rotate value: " + rotate);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return rotate;
         }
     }
 
@@ -328,9 +375,6 @@ public class SpotActivity extends AppCompatActivity implements View.OnClickListe
 
         public void onDestroyActionMode(ActionMode mode) {
         }
-
-
-
     }
 
 }

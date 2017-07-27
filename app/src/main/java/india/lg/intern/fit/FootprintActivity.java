@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
+import android.media.ThumbnailUtils;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -83,18 +84,14 @@ public class FootprintActivity extends FragmentActivity implements OnMapReadyCal
             Bitmap bitmap = BitmapFactory.decodeFile(spot.getImageDataList().get(0));
             Bitmap bitmap_frame = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.frame);
 
-            if(spot.getImageDataList().size() < 5) {
-                Bitmap resized = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
-                Bitmap resized_frame = Bitmap.createScaledBitmap(bitmap_frame, 105, 105, true);
-                frame.icon(BitmapDescriptorFactory.fromBitmap(resized_frame));
-                opt.icon(BitmapDescriptorFactory.fromBitmap(resized));
-            }
-            else {
-                Bitmap resized = Bitmap.createScaledBitmap(bitmap, 150, 150, true);
-                Bitmap resized_frame = Bitmap.createScaledBitmap(bitmap_frame, 157, 157, true);
-                frame.icon(BitmapDescriptorFactory.fromBitmap(resized_frame));
-                opt.icon(BitmapDescriptorFactory.fromBitmap(resized));
-            }
+            int thumbSize = 100 + spot.getImageDataList().size() * 2;
+            thumbSize = thumbSize > 150 ? 150 : thumbSize;
+
+            Bitmap resized = ThumbnailUtils.extractThumbnail(bitmap, thumbSize, thumbSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+            Bitmap resized_frame = Bitmap.createScaledBitmap(bitmap_frame, (int)(thumbSize*0.05), (int)(thumbSize*0.05), true);
+            frame.icon(BitmapDescriptorFactory.fromBitmap(resized_frame));
+            opt.icon(BitmapDescriptorFactory.fromBitmap(resized));
+
             mMap.addMarker(frame);
             mMap.addMarker(opt);
         }

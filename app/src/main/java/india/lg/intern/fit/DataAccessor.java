@@ -88,7 +88,6 @@ public class DataAccessor {
             fileIn = context.getApplicationContext().openFileInput(filename);
             objectIn = new ObjectInputStream(fileIn);
             object = (ArrayList<Footprint>) objectIn.readObject();
-            object.get(1).setName("Nandi Hills");
 
             if (object != null) {
                 for (int i = 0; i < object.size(); i++) {

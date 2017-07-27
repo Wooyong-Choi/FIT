@@ -1,5 +1,6 @@
 package india.lg.intern.fit;
 
+import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -15,7 +16,9 @@ public class Spot implements Parcelable, Serializable {
     private int posIdx;
     private ArrayList<String> imageDataList;
 
-    public Spot() { }
+    public Spot() {
+        imageDataList = new ArrayList<>();
+    }
 
     public Spot(int idx) {
         posIdx = idx;
