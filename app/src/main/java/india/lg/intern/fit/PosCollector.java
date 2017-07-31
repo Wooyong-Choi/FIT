@@ -1,9 +1,12 @@
 package india.lg.intern.fit;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.GpsStatus;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +27,8 @@ import com.google.android.gms.location.LocationServices;
 
 import java.util.ArrayList;
 
+import static android.location.GpsStatus.GPS_EVENT_STOPPED;
+
 
 /**
  * Created by LeeJaeYoung on 2016-12-09.
@@ -34,7 +39,7 @@ public class PosCollector extends Service implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
-
+    private LocationManager lm;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private static final String TAG = "GoogleMapAPIClient";
@@ -63,6 +68,7 @@ public class PosCollector extends Service implements
     public void onCreate() {
 
         locList = new ArrayList<Location>();
+        lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         super.onCreate();
 
@@ -130,7 +136,18 @@ public class PosCollector extends Service implements
 
     //4-2번
     protected void startLocationUpdates() {
-
+        lm.addGpsStatusListener(new GpsStatus.Listener() {
+            @Override
+            public void onGpsStatusChanged(int event) {
+                switch(event)
+                {
+                    case GPS_EVENT_STOPPED:
+                        Toast.makeText(getApplicationContext(), "Collect failed", Toast.LENGTH_SHORT).show();
+                        stopSelf();
+                        break;
+                }
+            }
+        });
         int nper1 = ContextCompat.checkSelfPermission
                 (this, android.Manifest.permission.ACCESS_FINE_LOCATION);
         int nper2 = ContextCompat.checkSelfPermission
@@ -147,6 +164,7 @@ public class PosCollector extends Service implements
             Toast.makeText(PosCollector.this, s, Toast.LENGTH_LONG).show();
             return;
         }
+
 
         //Fused Location Provider를 통한 위치정보
         LocationAvailability locationAvailability =

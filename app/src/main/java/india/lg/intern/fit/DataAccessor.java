@@ -114,4 +114,39 @@ public class DataAccessor {
         return object;
     }
 
+    /**
+     *
+     * @param context
+     * @param idx
+     */
+    public static void removeFp(Context context, int idx) {
+
+        ObjectOutputStream objectOut = null;
+        try {
+            ArrayList<Footprint> fpList = readFplist(context);
+            fpList.remove(idx);
+
+            FileOutputStream fileOut = context.openFileOutput(filename, Activity.MODE_PRIVATE);
+            objectOut = new ObjectOutputStream(fileOut);
+            objectOut.writeObject(fpList);
+            fileOut.getFD().sync();
+
+        } catch(FileNotFoundException e) {
+            try {
+                File.createTempFile(filename, null, context.getCacheDir());
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (objectOut != null) {
+                try {
+                    objectOut.close();
+                } catch (IOException e) {
+                    // do nowt
+                }
+            }
+        }
+    }
 }

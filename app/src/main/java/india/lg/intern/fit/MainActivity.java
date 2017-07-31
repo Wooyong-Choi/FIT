@@ -2,15 +2,21 @@ package india.lg.intern.fit;
 
 import android.Manifest;
 import android.app.SearchManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
+import android.widget.EditText;
 import android.widget.SearchView;
 import android.view.View;
 import android.widget.AdapterView;
@@ -131,6 +137,47 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        listview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                final int pos = position;
+
+                // Dialog
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, R.style.myDialog));
+
+                // 제목셋팅
+                alertDialogBuilder.setTitle("Delete");
+
+                // AlertDialog 셋팅
+                alertDialogBuilder
+                        .setMessage("Do you want to delete this?")
+                        .setPositiveButton("Delete",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        DataAccessor.removeFp(getApplicationContext(), pos);
+                                        updateFpList();
+                                    }
+                                })
+                        .setNegativeButton("Cancel",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(
+                                            DialogInterface dialog, int id) {
+                                        // 다이얼로그를 취소한다
+                                        dialog.cancel();
+                                    }
+                                });
+
+                // 다이얼로그 생성
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                // 다이얼로그 보여주기
+                alertDialog.show();
+
+                return false;
+            }
+        });
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,6 +191,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        updateFpList();
+    }
+
+    private void updateFpList() {
         historyAdapter.clearData();
 
         fpList = DataAccessor.readFplist(getApplicationContext());

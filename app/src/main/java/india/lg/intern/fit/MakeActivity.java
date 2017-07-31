@@ -165,6 +165,11 @@ public class MakeActivity extends AppCompatActivity implements View.OnClickListe
             dialogBuilder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     nameTemp = edt.getText().toString();
+                    for (Footprint fp : DataAccessor.readFplist(getApplicationContext())) {
+                        if (fp.getName().equals(nameTemp)) {
+                            Toast.makeText(MakeActivity.this,"Already same title exists.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
 
                     Intent intent = new Intent(getApplicationContext(), PosCollector.class);
                     stopService(intent);
